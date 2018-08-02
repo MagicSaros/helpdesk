@@ -1,4 +1,4 @@
-package com.epam.component;
+package com.epam.security;
 
 import com.epam.exception.ApiError;
 import org.springframework.http.HttpStatus;
@@ -12,6 +12,7 @@ import java.io.IOException;
 
 @Component
 public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
+
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException {

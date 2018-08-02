@@ -1,74 +1,92 @@
 package com.epam.configuration;
 
 import com.epam.enums.UserRole;
-import com.epam.handler.AuthenticationSuccessHandler;
+import com.epam.security.AuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+
+import javax.servlet.Filter;
 
 @Configuration
 @EnableWebSecurity
-@ComponentScan("com.epam.component")
+@ComponentScan("com.epam.security")
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private AuthenticationSuccessHandler authenticationSuccessHandler;
-    @Autowired
-    private SimpleUrlAuthenticationFailureHandler authenticationFailureHandler;
     @Autowired
     private AuthenticationEntryPoint authenticationEntryPoint;
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder authentication) throws Exception {
+    @Autowired
+    protected void configureGlobal(AuthenticationManagerBuilder authentication) throws Exception {
+        PasswordEncoder encoder =
+                PasswordEncoderFactories.createDelegatingPasswordEncoder();
+
         authentication.inMemoryAuthentication()
-                .withUser("user1_mogilev@yopmail.com").password("{noop}P@ssword1")
-                .roles(UserRole.EMPLOYEE.toString())
+                .passwordEncoder(NoOpPasswordEncoder.getInstance())
+                    .withUser("user1_mogilev@yopmail.com")
+                    .password("P@ssword1")
+                    .roles(UserRole.EMPLOYEE.toString())
                 .and()
-                .withUser("user2_mogilev@yopmail.com").password("{noop}P@ssword1")
-                .roles(UserRole.EMPLOYEE.toString())
+                    .withUser("user2_mogilev@yopmail.com")
+                    .password("P@ssword1")
+                    .roles(UserRole.EMPLOYEE.toString())
                 .and()
-                .withUser("manager1_mogilev@yopmail.com").password("{noop}P@ssword1")
-                .roles(UserRole.MANAGER.toString())
+                    .withUser("manager1_mogilev@yopmail.com")
+                    .password("P@ssword1")
+                    .roles(UserRole.MANAGER.toString())
                 .and()
-                .withUser("manager2_mogilev@yopmail.com").password("{noop}P@ssword1")
-                .roles(UserRole.MANAGER.toString())
+                    .withUser("manager2_mogilev@yopmail.com")
+                    .password("P@ssword1")
+                    .roles(UserRole.MANAGER.toString())
                 .and()
-                .withUser("engineer1_mogilev@yopmail.com").password("{noop}P@ssword1")
-                .roles(UserRole.ENGINEER.toString())
+                    .withUser("engineer1_mogilev@yopmail.com")
+                    .password("P@ssword1")
+                    .roles(UserRole.ENGINEER.toString())
                 .and()
-                .withUser("engineer2_mogilev@yopmail.com").password("{noop}P@ssword1")
-                .roles(UserRole.ENGINEER.toString());
+                    .withUser("engineer2_mogilev@yopmail.com")
+                    .password("P@ssword1")
+                    .roles(UserRole.ENGINEER.toString());
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
-                .exceptionHandling()
-                .and()
-                .httpBasic().authenticationEntryPoint(authenticationEntryPoint)
-                .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authorizeRequests().antMatchers("/api/**").authenticated()
+                .authorizeRequests()
+                    .antMatchers("/api/**").authenticated()
                 .and()
-                .formLogin()
-                .successHandler(authenticationSuccessHandler)
-                .failureHandler(authenticationFailureHandler)
+                .addFilterBefore(authenticationFilter(authenticationManager()), BasicAuthenticationFilter.class)
+                .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
                 .and()
-                .logout();
+                .cors()
+                .and()
+                .httpBasic().disable()
+                .formLogin().disable()
+                .logout().disable()
+                .csrf().disable();
     }
 
     @Override
     public void configure(WebSecurity webSecurity) {
-        webSecurity.ignoring().antMatchers(HttpMethod.OPTIONS, "/**");
+        webSecurity.ignoring().antMatchers(HttpMethod.POST, "/api/login");
+    }
+
+    @Bean
+    public Filter authenticationFilter(AuthenticationManager authenticationManager) {
+        return new AuthenticationFilter(authenticationManager);
     }
 }
