@@ -1,7 +1,7 @@
 package com.epam.controller;
 
 import com.epam.dto.AuthenticationTokenDto;
-import com.epam.dto.UserDto;
+import com.epam.dto.UserDetailsDto;
 import com.epam.service.EncryptionService;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,11 +18,15 @@ import static org.hamcrest.Matchers.equalTo;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthenticationControllerTest {
+
     private static final String URL_PREFIX = "/api";
+
     @Mock
     private EncryptionService encryptionService;
+
     @Mock
     private UserDetailsService userDetailsService;
+
     @InjectMocks
     private AuthenticationController authenticationController = new AuthenticationController();
 
@@ -37,17 +41,17 @@ public class AuthenticationControllerTest {
         String tokenString = "dXNlcm5hbWU=";
         String tokenHeader = "Auth-Token";
 
-        UserDto userDto = new UserDto("username", "password");
+        UserDetailsDto userDetailsDto = new UserDetailsDto("username", "password");
         AuthenticationTokenDto tokenDto = new AuthenticationTokenDto(tokenString, tokenHeader);
         UserDetails user = org.mockito.BDDMockito.mock(UserDetails.class);
 
-        org.mockito.BDDMockito.given(userDetailsService.loadUserByUsername(userDto.getUsername())).willReturn(user);
+        org.mockito.BDDMockito.given(userDetailsService.loadUserByUsername(userDetailsDto.getUsername())).willReturn(user);
         org.mockito.BDDMockito.given(user.getPassword()).willReturn("password");
-        org.mockito.BDDMockito.given(encryptionService.encode(userDto.getUsername())).willReturn(tokenString);
+        org.mockito.BDDMockito.given(encryptionService.encode(userDetailsDto.getUsername())).willReturn(tokenString);
 
         given()
                 .contentType("application/json")
-                .body(userDto)
+                .body(userDetailsDto)
                 .when()
                 .post(url)
                 .then()

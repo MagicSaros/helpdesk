@@ -89,7 +89,8 @@ class Login extends Component {
         event.preventDefault();
 
         let self = this;
-        let baseUrl = 'http://localhost:8080/api', requestUrl = '/login';
+        let baseUrl = this.props.baseUrl
+        let requestUrl = '/login';
         let url = baseUrl + requestUrl;
         let payload = {
             "username": this.state.username,
@@ -97,16 +98,15 @@ class Login extends Component {
         };
         
         console.log('Username: ' + this.state.username);
-        console.log('Url: ' + url);
 
         axios
             .post(url, payload)
             .then(response => {
-                console.log(response);
                 if (response.status === 200) {
                     self.setState({ isDataValid: true });
                     localStorage.setItem(self.props.accessToken.header, response.data.tokenHeader);
                     localStorage.setItem(self.props.accessToken.string, response.data.tokenString);
+                    self.props.history.push('/tickets')
                 }
             })
             .catch(error => {

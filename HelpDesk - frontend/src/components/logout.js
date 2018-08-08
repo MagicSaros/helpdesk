@@ -8,7 +8,6 @@ class Logout extends Component {
     componentDidMount() {
         localStorage.removeItem(this.props.accessToken.header);
         localStorage.removeItem(this.props.accessToken.string);
-        console.log("Successfully logged out")
         this.props.history.push('/login')
     }
 }

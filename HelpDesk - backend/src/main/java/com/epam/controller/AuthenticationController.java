@@ -1,7 +1,7 @@
 package com.epam.controller;
 
 import com.epam.dto.AuthenticationTokenDto;
-import com.epam.dto.UserDto;
+import com.epam.dto.UserDetailsDto;
 import com.epam.exception.BadCredentialsException;
 import com.epam.service.EncryptionService;
 import org.apache.log4j.Logger;
@@ -26,20 +26,20 @@ public class AuthenticationController {
     private EncryptionService encryptionService;
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ResponseEntity<AuthenticationTokenDto> login(@RequestBody UserDto userDto) {
-        LOGGER.debug("Got username: " + userDto.getUsername());
+    public ResponseEntity<AuthenticationTokenDto> login(@RequestBody UserDetailsDto userDetailsDto) {
+        LOGGER.debug("Got username: " + userDetailsDto.getUsername());
 
         UserDetails user;
         try {
-            user = userDetailsService.loadUserByUsername(userDto.getUsername());
+            user = userDetailsService.loadUserByUsername(userDetailsDto.getUsername());
         } catch (UsernameNotFoundException e) {
             LOGGER.info("Not verified");
             throw new BadCredentialsException("Invalid login or password");
         }
 
-        if (user.getPassword().equals(userDto.getPassword())) {
+        if (user.getPassword().equals(userDetailsDto.getPassword())) {
             LOGGER.info("Verified");
-            String tokenString = encryptionService.encode(userDto.getUsername());
+            String tokenString = encryptionService.encode(userDetailsDto.getUsername());
             AuthenticationTokenDto token = new AuthenticationTokenDto(tokenString, TOKEN_HEADER);
             LOGGER.debug("Token: " + token.toString());
             return new ResponseEntity<>(token, HttpStatus.OK);
