@@ -3,6 +3,8 @@ package com.epam.converter.implementation;
 import com.epam.converter.DtoConverter;
 import com.epam.dto.TicketDto;
 import com.epam.entity.Ticket;
+import com.epam.exception.DtoNotFoundException;
+import com.epam.exception.TicketNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,36 +18,42 @@ public class TicketDtoConverter implements DtoConverter<Ticket, TicketDto> {
     private CategoryDtoConverter categoryDtoConverter;
 
     @Override
-    public TicketDto fromEntityToDto(Ticket ticket) {
-        TicketDto ticketDto = new TicketDto();
-        ticketDto.setId(ticket.getId());
-        ticketDto.setName(ticket.getName());
-        ticketDto.setDescription(ticket.getDescription());
-        ticketDto.setCreatedOn(ticket.getCreatedOn());
-        ticketDto.setDesiredResolutionDate(ticket.getDesiredResolutionDate());
-        ticketDto.setAssignee(userDtoConverter.fromEntityToDto(ticket.getAssignee()));
-        ticketDto.setOwner(userDtoConverter.fromEntityToDto(ticket.getOwner()));
-        ticketDto.setState(ticket.getState());
-        ticketDto.setCategory(categoryDtoConverter.fromEntityToDto(ticket.getCategory()));
-        ticketDto.setUrgency(ticket.getUrgency());
-        ticketDto.setApprover(userDtoConverter.fromEntityToDto(ticket.getApprover()));
-        return ticketDto;
+    public TicketDto fromEntityToDto(final Ticket ticket) {
+        if (ticket == null) {
+            throw new TicketNotFoundException("Ticket is null");
+        }
+        return new TicketDto.Builder()
+            .setId(ticket.getId())
+            .setName(ticket.getName())
+            .setDescription(ticket.getDescription())
+            .setCreatedOn(ticket.getCreatedOn())
+            .setDesiredResolutionDate(ticket.getDesiredResolutionDate())
+            .setAssignee(userDtoConverter.fromEntityToDto(ticket.getAssignee()))
+            .setOwner(userDtoConverter.fromEntityToDto(ticket.getOwner()))
+            .setState(ticket.getState())
+            .setCategory(categoryDtoConverter.fromEntityToDto(ticket.getCategory()))
+            .setUrgency(ticket.getUrgency())
+            .setApprover(userDtoConverter.fromEntityToDto(ticket.getApprover()))
+            .build();
     }
 
     @Override
-    public Ticket fromDtoToEntity(TicketDto ticketDto) {
-        Ticket ticket = new Ticket();
-        ticket.setId(ticketDto.getId());
-        ticket.setName(ticketDto.getName());
-        ticket.setDescription(ticketDto.getDescription());
-        ticket.setCreatedOn(ticketDto.getCreatedOn());
-        ticket.setDesiredResolutionDate(ticketDto.getDesiredResolutionDate());
-        ticket.setAssignee(userDtoConverter.fromDtoToEntity(ticketDto.getAssignee()));
-        ticket.setOwner(userDtoConverter.fromDtoToEntity(ticketDto.getOwner()));
-        ticket.setState(ticketDto.getState());
-        ticket.setCategory(categoryDtoConverter.fromDtoToEntity(ticketDto.getCategory()));
-        ticket.setUrgency(ticketDto.getUrgency());
-        ticket.setApprover(userDtoConverter.fromDtoToEntity(ticketDto.getApprover()));
-        return ticket;
+    public Ticket fromDtoToEntity(final TicketDto dto) {
+        if (dto == null) {
+            throw new DtoNotFoundException("Ticket DTO is null");
+        }
+        return new Ticket.Builder()
+            .setId(dto.getId())
+            .setName(dto.getName())
+            .setDescription(dto.getDescription())
+            .setCreatedOn(dto.getCreatedOn())
+            .setDesiredResolutionDate(dto.getDesiredResolutionDate())
+            .setAssignee(userDtoConverter.fromDtoToEntity(dto.getAssignee()))
+            .setOwner(userDtoConverter.fromDtoToEntity(dto.getOwner()))
+            .setState(dto.getState())
+            .setCategory(categoryDtoConverter.fromDtoToEntity(dto.getCategory()))
+            .setUrgency(dto.getUrgency())
+            .setApprover(userDtoConverter.fromDtoToEntity(dto.getApprover()))
+            .build();
     }
 }

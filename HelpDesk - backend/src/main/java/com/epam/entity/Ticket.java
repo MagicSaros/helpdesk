@@ -6,55 +6,54 @@ import com.epam.enums.Urgency;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.Objects;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 @Entity
 @Table(name = "ticket")
 public class Ticket {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
+    private Long id;
     private String name;
-
     private String description;
-
-    @Column(name = "created_on")
     private Date createdOn;
-
-    @Column(name = "desired_resolution_date")
     private Date desiredResolutionDate;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "assignee_id")
     private User assignee;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "owner_id")
     private User owner;
-
-    @Column(name = "state_id")
     private State state;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "category_id")
     private Category category;
-
-    @Column(name = "urgency_id")
     private Urgency urgency;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "approver_id")
     private User approver;
 
-    public long getId() {
+    public Ticket() {
+    }
+
+    private Ticket(final Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+        this.description = builder.description;
+        this.createdOn = builder.createdOn;
+        this.desiredResolutionDate = builder.desiredResolutionDate;
+        this.assignee = builder.assignee;
+        this.owner = builder.owner;
+        this.state = builder.state;
+        this.category = builder.category;
+        this.urgency = builder.urgency;
+        this.approver = builder.approver;
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
+    @Column
     public String getName() {
         return name;
     }
@@ -63,6 +62,7 @@ public class Ticket {
         this.name = name;
     }
 
+    @Column
     public String getDescription() {
         return description;
     }
@@ -71,6 +71,7 @@ public class Ticket {
         this.description = description;
     }
 
+    @Column(name = "created_on")
     public Date getCreatedOn() {
         return createdOn;
     }
@@ -79,6 +80,7 @@ public class Ticket {
         this.createdOn = createdOn;
     }
 
+    @Column(name = "desired_resolution_date")
     public Date getDesiredResolutionDate() {
         return desiredResolutionDate;
     }
@@ -87,6 +89,8 @@ public class Ticket {
         this.desiredResolutionDate = desiredResolutionDate;
     }
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "assignee_id")
     public User getAssignee() {
         return assignee;
     }
@@ -95,6 +99,8 @@ public class Ticket {
         this.assignee = assignee;
     }
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "owner_id")
     public User getOwner() {
         return owner;
     }
@@ -103,6 +109,7 @@ public class Ticket {
         this.owner = owner;
     }
 
+    @Column(name = "state_id")
     public State getState() {
         return state;
     }
@@ -111,6 +118,8 @@ public class Ticket {
         this.state = state;
     }
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "category_id")
     public Category getCategory() {
         return category;
     }
@@ -119,6 +128,7 @@ public class Ticket {
         this.category = category;
     }
 
+    @Column(name = "urgency_id")
     public Urgency getUrgency() {
         return urgency;
     }
@@ -127,6 +137,8 @@ public class Ticket {
         this.urgency = urgency;
     }
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "approver_id")
     public User getApprover() {
         return approver;
     }
@@ -137,40 +149,136 @@ public class Ticket {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
         Ticket ticket = (Ticket) o;
-        return Objects.equals(name, ticket.name) &&
-                Objects.equals(description, ticket.description) &&
-                Objects.equals(createdOn, ticket.createdOn) &&
-                Objects.equals(desiredResolutionDate, ticket.desiredResolutionDate) &&
-                Objects.equals(assignee, ticket.assignee) &&
-                Objects.equals(owner, ticket.owner) &&
-                state == ticket.state &&
-                Objects.equals(category, ticket.category) &&
-                urgency == ticket.urgency &&
-                Objects.equals(approver, ticket.approver);
+
+        return new EqualsBuilder()
+            .append(id, ticket.id)
+            .append(name, ticket.name)
+            .append(description, ticket.description)
+            .append(createdOn, ticket.createdOn)
+            .append(desiredResolutionDate, ticket.desiredResolutionDate)
+            .append(assignee, ticket.assignee)
+            .append(owner, ticket.owner)
+            .append(state, ticket.state)
+            .append(category, ticket.category)
+            .append(urgency, ticket.urgency)
+            .append(approver, ticket.approver)
+            .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, createdOn, desiredResolutionDate, assignee, owner, state, category, urgency, approver);
+        return new HashCodeBuilder(17, 37)
+            .append(id)
+            .append(name)
+            .append(description)
+            .append(createdOn)
+            .append(desiredResolutionDate)
+            .append(assignee)
+            .append(owner)
+            .append(state)
+            .append(category)
+            .append(urgency)
+            .append(approver)
+            .toHashCode();
     }
 
     @Override
     public String toString() {
-        return "Ticket{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", createdOn=" + createdOn +
-                ", desiredResolutionDate=" + desiredResolutionDate +
-                ", assignee=" + assignee +
-                ", owner=" + owner +
-                ", state=" + state +
-                ", category=" + category +
-                ", urgency=" + urgency +
-                ", approver=" + approver +
-                '}';
+        return new ToStringBuilder(this)
+            .append("id", id)
+            .append("name", name)
+            .append("description", description)
+            .append("createdOn", createdOn)
+            .append("desiredResolutionDate", desiredResolutionDate)
+            .append("assignee", assignee)
+            .append("owner", owner)
+            .append("state", state)
+            .append("category", category)
+            .append("urgency", urgency)
+            .append("approver", approver)
+            .toString();
+    }
+
+    public static class Builder {
+
+        private Long id;
+        private String name;
+        private String description;
+        private Date createdOn;
+        private Date desiredResolutionDate;
+        private User assignee;
+        private User owner;
+        private State state;
+        private Category category;
+        private Urgency urgency;
+        private User approver;
+
+        public Builder setId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder setDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder setCreatedOn(Date createdOn) {
+            this.createdOn = createdOn;
+            return this;
+        }
+
+        public Builder setDesiredResolutionDate(Date desiredResolutionDate) {
+            this.desiredResolutionDate = desiredResolutionDate;
+            return this;
+        }
+
+        public Builder setAssignee(User assignee) {
+            this.assignee = assignee;
+            return this;
+        }
+
+        public Builder setOwner(User owner) {
+            this.owner = owner;
+            return this;
+        }
+
+        public Builder setState(State state) {
+            this.state = state;
+            return this;
+        }
+
+        public Builder setCategory(Category category) {
+            this.category = category;
+            return this;
+        }
+
+        public Builder setUrgency(Urgency urgency) {
+            this.urgency = urgency;
+            return this;
+        }
+
+        public Builder setApprover(User approver) {
+            this.approver = approver;
+            return this;
+        }
+
+        public Ticket build() {
+            return new Ticket(this);
+        }
     }
 }

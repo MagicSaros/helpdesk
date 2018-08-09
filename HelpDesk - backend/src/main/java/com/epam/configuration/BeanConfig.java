@@ -25,14 +25,20 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 public class BeanConfig {
 
+    private static final String USER_INIT_SCRIPT = "classpath:sql/userInitScript.sql";
+    private static final String TICKET_INIT_SCRIPT = "classpath:sql/ticketInitScript.sql";
+    private static final String CATEGORY_INIT_SCRIPT = "classpath:sql/categoryInitScript.sql";
+    private static final String TEST_DATA_SCRIPT = "classpath:sql/testData.sql";
+    private static final String PACKAGE_TO_SCAN = "com.epam.entity";
+
     @Bean
     public DataSource dataSource() {
         EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder()
-                .setType(EmbeddedDatabaseType.H2)
-                .addScript("classpath:sql/userInitScript.sql")
-                .addScript("classpath:sql/categoryInitScript.sql")
-                .addScript("classpath:sql/ticketInitScript.sql")
-                .addScript("classpath:sql/testData.sql");
+            .setType(EmbeddedDatabaseType.H2)
+            .addScript(USER_INIT_SCRIPT)
+            .addScript(CATEGORY_INIT_SCRIPT)
+            .addScript(TICKET_INIT_SCRIPT)
+            .addScript(TEST_DATA_SCRIPT);
         return builder.build();
     }
 
@@ -41,7 +47,7 @@ public class BeanConfig {
     public LocalSessionFactoryBean sessionFactory(DataSource dataSource) {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
-        sessionFactory.setPackagesToScan("com.epam.entity");
+        sessionFactory.setPackagesToScan(PACKAGE_TO_SCAN);
         return sessionFactory;
     }
 

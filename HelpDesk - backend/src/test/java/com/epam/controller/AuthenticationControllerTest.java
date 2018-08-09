@@ -2,10 +2,13 @@ package com.epam.controller;
 
 import com.epam.dto.AuthenticationTokenDto;
 import com.epam.dto.UserDetailsDto;
+import com.epam.entity.User;
 import com.epam.service.EncryptionService;
+import com.epam.service.UserService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -27,6 +30,9 @@ public class AuthenticationControllerTest {
     @Mock
     private UserDetailsService userDetailsService;
 
+    @Mock
+    private UserService userService;
+
     @InjectMocks
     private AuthenticationController authenticationController = new AuthenticationController();
 
@@ -42,22 +48,26 @@ public class AuthenticationControllerTest {
         String tokenHeader = "Auth-Token";
 
         UserDetailsDto userDetailsDto = new UserDetailsDto("username", "password");
-        AuthenticationTokenDto tokenDto = new AuthenticationTokenDto(tokenString, tokenHeader);
-        UserDetails user = org.mockito.BDDMockito.mock(UserDetails.class);
+        AuthenticationTokenDto tokenDto = new AuthenticationTokenDto(1L, tokenString, tokenHeader);
+        UserDetails userDetails = BDDMockito.mock(UserDetails.class);
+        User user = new User();
 
-        org.mockito.BDDMockito.given(userDetailsService.loadUserByUsername(userDetailsDto.getUsername())).willReturn(user);
-        org.mockito.BDDMockito.given(user.getPassword()).willReturn("password");
-        org.mockito.BDDMockito.given(encryptionService.encode(userDetailsDto.getUsername())).willReturn(tokenString);
+        BDDMockito.given(userDetailsService.loadUserByUsername(userDetailsDto.getUsername()))
+            .willReturn(userDetails);
+        BDDMockito.given(userDetails.getPassword()).willReturn("password");
+        BDDMockito.given(encryptionService.encode(userDetailsDto.getUsername()))
+            .willReturn(tokenString);
+        BDDMockito.given(userService.getUserByEmail(userDetails.getUsername())).willReturn(user);
 
         given()
-                .contentType("application/json")
-                .body(userDetailsDto)
-                .when()
-                .post(url)
-                .then()
-                .statusCode(200)
-                .and()
-                .body("tokenHeader", equalTo(tokenDto.getTokenHeader()))
-                .body("tokenString", equalTo(tokenDto.getTokenString()));
+            .contentType("application/json")
+            .body(userDetailsDto)
+            .when()
+            .post(url)
+            .then()
+            .statusCode(200)
+            .and()
+            .body("tokenHeader", equalTo(tokenDto.getTokenHeader()))
+            .body("tokenString", equalTo(tokenDto.getTokenString()));
     }
 }

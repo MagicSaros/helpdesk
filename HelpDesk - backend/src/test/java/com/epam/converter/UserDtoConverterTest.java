@@ -21,25 +21,30 @@ public class UserDtoConverterTest {
     public void init() {
         userDtoConverter = new UserDtoConverter();
 
-        user = new User();
-        user.setFirstName("First");
-        user.setLastName("Last");
-        user.setRole(UserRole.MANAGER);
-        user.setEmail("email");
-        user.setPassword("password");
+        user = new User.Builder()
+            .setId((long) 1)
+            .setFirstName("First")
+            .setLastName("Last")
+            .setRole(UserRole.MANAGER)
+            .setEmail("email")
+            .setPassword("password")
+            .build();
 
-        userDto = new UserDto();
-        userDto.setFirstName("First");
-        userDto.setLastName("Last");
-        userDto.setRole(UserRole.MANAGER);
-        userDto.setEmail("email");
-        userDto.setPassword("password");
+        userDto = new UserDto.Builder()
+            .setId((long) 1)
+            .setFirstName("First")
+            .setLastName("Last")
+            .setRole(UserRole.MANAGER)
+            .setEmail("email")
+            .setPassword("password")
+            .build();
     }
 
     @Test
     public void fromEntityToDtoTest() {
         UserDto actual = userDtoConverter.fromEntityToDto(user);
 
+        assertEquals(userDto.getId(), actual.getId());
         assertEquals(userDto.getFirstName(), actual.getFirstName());
         assertEquals(userDto.getLastName(), actual.getLastName());
         assertEquals(userDto.getRole(), actual.getRole());

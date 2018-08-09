@@ -7,33 +7,40 @@ import java.util.Date;
 
 public class TicketDto {
 
-    private long id;
-
+    private Long id;
     private String name;
-
     private String description;
-
     private Date createdOn;
-
     private Date desiredResolutionDate;
-
     private UserDto assignee;
-
     private UserDto owner;
-
     private State state;
-
     private CategoryDto category;
-
     private Urgency urgency;
-
     private UserDto approver;
 
-    public long getId() {
+    public TicketDto() {
+    }
+
+    private TicketDto(final Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+        this.description = builder.description;
+        this.createdOn = builder.createdOn;
+        this.desiredResolutionDate = builder.desiredResolutionDate;
+        this.assignee = builder.assignee;
+        this.owner = builder.owner;
+        this.state = builder.state;
+        this.category = builder.category;
+        this.urgency = builder.urgency;
+        this.approver = builder.approver;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -115,5 +122,79 @@ public class TicketDto {
 
     public void setApprover(UserDto approver) {
         this.approver = approver;
+    }
+
+    public static class Builder {
+
+        private Long id;
+        private String name;
+        private String description;
+        private Date createdOn;
+        private Date desiredResolutionDate;
+        private UserDto assignee;
+        private UserDto owner;
+        private State state;
+        private CategoryDto category;
+        private Urgency urgency;
+        private UserDto approver;
+
+        public Builder setId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder setDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder setCreatedOn(Date createdOn) {
+            this.createdOn = createdOn;
+            return this;
+        }
+
+        public Builder setDesiredResolutionDate(Date desiredResolutionDate) {
+            this.desiredResolutionDate = desiredResolutionDate;
+            return this;
+        }
+
+        public Builder setAssignee(UserDto assignee) {
+            this.assignee = assignee;
+            return this;
+        }
+
+        public Builder setOwner(UserDto owner) {
+            this.owner = owner;
+            return this;
+        }
+
+        public Builder setState(State state) {
+            this.state = state;
+            return this;
+        }
+
+        public Builder setCategory(CategoryDto category) {
+            this.category = category;
+            return this;
+        }
+
+        public Builder setUrgency(Urgency urgency) {
+            this.urgency = urgency;
+            return this;
+        }
+
+        public Builder setApprover(UserDto approver) {
+            this.approver = approver;
+            return this;
+        }
+
+        public TicketDto build() {
+            return new TicketDto(this);
+        }
     }
 }

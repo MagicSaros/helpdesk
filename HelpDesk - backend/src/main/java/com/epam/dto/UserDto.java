@@ -2,27 +2,39 @@ package com.epam.dto;
 
 import com.epam.enums.UserRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 public class UserDto {
 
-    private long id;
-
+    private Long id;
     private String firstName;
-
     private String lastName;
-
     private UserRole role;
-
     private String email;
-
-    @JsonIgnore
     private String password;
 
-    public long getId() {
+    public UserDto() {
+    }
+
+    private UserDto(final Builder builder) {
+        this.id = builder.id;
+        this.firstName = builder.firstName;
+        this.lastName = builder.lastName;
+        this.role = builder.role;
+        this.email = builder.email;
+        this.password = builder.password;
+    }
+
+    @NotNull
+    @Pattern(regexp = "[0-9]+")
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -50,6 +62,9 @@ public class UserDto {
         this.role = role;
     }
 
+    @NotNull
+    @Email
+    @Size(max = 100)
     public String getEmail() {
         return email;
     }
@@ -58,11 +73,56 @@ public class UserDto {
         this.email = email;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public static class Builder {
+
+        private Long id;
+        private String firstName;
+        private String lastName;
+        private UserRole role;
+        private String email;
+        private String password;
+
+        public Builder setId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder setFirstName(String firstName) {
+            this.firstName = firstName;
+            return this;
+        }
+
+        public Builder setLastName(String lastName) {
+            this.lastName = lastName;
+            return this;
+        }
+
+        public Builder setRole(UserRole role) {
+            this.role = role;
+            return this;
+        }
+
+        public Builder setEmail(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public Builder setPassword(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public UserDto build() {
+            return new UserDto(this);
+        }
     }
 }

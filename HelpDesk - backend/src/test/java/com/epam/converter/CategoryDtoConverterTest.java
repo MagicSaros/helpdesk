@@ -21,11 +21,11 @@ public class CategoryDtoConverterTest {
         categoryDtoConverter = new CategoryDtoConverter();
 
         category = new Category();
-        category.setId(1);
+        category.setId((long) 1);
         category.setName("Category");
 
         categoryDto = new CategoryDto();
-        categoryDto.setId(1);
+        categoryDto.setId((long) 1);
         categoryDto.setName("Category");
     }
 

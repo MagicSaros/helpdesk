@@ -53,31 +53,33 @@ public class TicketDtoConverterTest {
 
         Date date = new GregorianCalendar(2018, 8, 8).getTime();
 
-        ticket = new Ticket();
-        ticket.setId(1);
-        ticket.setName("Name");
-        ticket.setDescription("Category");
-        ticket.setCreatedOn(date);
-        ticket.setDesiredResolutionDate(date);
-        ticket.setAssignee(user);
-        ticket.setOwner(user);
-        ticket.setCategory(category);
-        ticket.setState(State.NEW);
-        ticket.setUrgency(Urgency.MEDIUM);
-        ticket.setApprover(user);
+        ticket = new Ticket.Builder()
+            .setId((long) 1)
+            .setName("Name")
+            .setDescription("Category")
+            .setCreatedOn(date)
+            .setDesiredResolutionDate(date)
+            .setAssignee(user)
+            .setOwner(user)
+            .setCategory(category)
+            .setState(State.NEW)
+            .setUrgency(Urgency.MEDIUM)
+            .setApprover(user)
+            .build();
 
-        ticketDto = new TicketDto();
-        ticketDto.setId(1);
-        ticketDto.setName("Name");
-        ticketDto.setDescription("Category");
-        ticketDto.setCreatedOn(date);
-        ticketDto.setDesiredResolutionDate(date);
-        ticketDto.setAssignee(userDto);
-        ticketDto.setOwner(userDto);
-        ticketDto.setCategory(categoryDto);
-        ticketDto.setState(State.NEW);
-        ticketDto.setUrgency(Urgency.MEDIUM);
-        ticketDto.setApprover(userDto);
+        ticketDto = new TicketDto.Builder()
+            .setId((long) 1)
+            .setName("Name")
+            .setDescription("Category")
+            .setCreatedOn(date)
+            .setDesiredResolutionDate(date)
+            .setAssignee(userDto)
+            .setOwner(userDto)
+            .setCategory(categoryDto)
+            .setState(State.NEW)
+            .setUrgency(Urgency.MEDIUM)
+            .setApprover(userDto)
+            .build();
     }
 
     @Test

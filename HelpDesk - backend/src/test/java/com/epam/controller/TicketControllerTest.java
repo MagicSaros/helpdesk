@@ -8,6 +8,7 @@ import com.epam.entity.Ticket;
 import com.epam.entity.User;
 import com.epam.enums.UserRole;
 import com.epam.service.TicketService;
+import com.epam.service.UserService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +29,7 @@ import static org.hamcrest.Matchers.hasSize;
 @RunWith(MockitoJUnitRunner.class)
 public class TicketControllerTest {
 
-    private static final String URL_PREFIX = "/api/tickets";
+    private static final String URL_PREFIX = "/api/users/{userId}/tickets";
 
     private List<Ticket> tickets = new LinkedList<>();
 
@@ -40,6 +41,9 @@ public class TicketControllerTest {
     @Mock
     TicketService ticketService;
 
+    @Mock
+    UserService userService;
+
     @InjectMocks
     TicketController ticketController = new TicketController();
 
@@ -47,29 +51,37 @@ public class TicketControllerTest {
     public void init() {
         standaloneSetup(ticketController);
 
-        User user = new User();
-        user.setFirstName("First");
-        user.setLastName("Last");
-        user.setRole(UserRole.EMPLOYEE);
+        User user = new User.Builder()
+            .setId(1L)
+            .setFirstName("First")
+            .setLastName("Last")
+            .setRole(UserRole.EMPLOYEE)
+            .build();
 
-        Ticket ticket = new Ticket();
-        ticket.setName("Name");
-        ticket.setAssignee(user);
-        ticket.setOwner(user);
-        ticket.setApprover(user);
-        ticket.setCategory(new Category());
+        Ticket ticket = new Ticket.Builder()
+            .setId(1L)
+            .setName("Name")
+            .setAssignee(user)
+            .setOwner(user)
+            .setApprover(user)
+            .setCategory(new Category())
+            .build();
 
         tickets.add(ticket);
         tickets.add(ticket);
         tickets.add(ticket);
 
-        UserDto userDto = new UserDto();
-        userDto.setFirstName("First");
-        userDto.setLastName("Last");
+        UserDto userDto = new UserDto.Builder()
+            .setId(1L)
+            .setFirstName("First")
+            .setLastName("Last")
+            .build();
 
-        TicketDto ticketDto = new TicketDto();
-        ticketDto.setName("Name");
-        ticketDto.setOwner(userDto);
+        TicketDto ticketDto = new TicketDto.Builder()
+            .setId(1L)
+            .setName("Name")
+            .setOwner(userDto)
+            .build();
 
         ticketsDto.add(ticketDto);
         ticketsDto.add(ticketDto);
@@ -86,19 +98,20 @@ public class TicketControllerTest {
         TicketDto ticketDto = ticketsDto.get(0);
         UserDto userDto = ticketDto.getOwner();
 
+        BDDMockito.given(userService.getUserById(1L)).willReturn(user);
         BDDMockito.given(ticketService.getTicketsByUser(user)).willReturn(tickets);
         BDDMockito.given(ticketDtoConverter.fromEntityToDto(ticket)).willReturn(ticketDto);
 
         given()
-                .when()
-                .get(url)
-                .then()
-                .statusCode(200)
-                .and()
-                .body("", hasSize(3))
-                .body("get(0).name", equalTo(ticketDto.getName()))
-                .body("get(0).owner.firstName", equalTo(userDto.getFirstName()))
-                .body("get(0).owner.lastName", equalTo(userDto.getLastName()));
+            .when()
+            .get(url, 1)
+            .then()
+            .statusCode(200)
+            .and()
+            .body("", hasSize(3))
+            .body("get(0).name", equalTo(ticketDto.getName()))
+            .body("get(0).owner.firstName", equalTo(userDto.getFirstName()))
+            .body("get(0).owner.lastName", equalTo(userDto.getLastName()));
     }
 
     @After
