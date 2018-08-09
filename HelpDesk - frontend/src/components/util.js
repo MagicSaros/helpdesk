@@ -9,15 +9,6 @@ class Util extends Component {
     static toShortDateFormat(milliseconds) {
         return new Date(milliseconds).toLocaleDateString();
     }
-
-    static compareTicketsByUrgency(x, y) {
-        let order = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
-        return order.indexOf(x.urgency) - order.indexOf(y.urgency);
-    }
-    
-    static compareTicketsByDateDesc(x, y) {
-        return x.desiredResolutionDate - y.desiredResolutionDate;
-    }
 }
 
 export default Util;

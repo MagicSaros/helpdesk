@@ -5,7 +5,8 @@ import Logout from './components/logout';
 import './App.css';
 import TicketList from './components/ticket/ticketList';
 
-const accessToken = {
+const authenticationDataLocalStorageKeys = {
+	userId: 'User id',
 	header: 'Authentication token header',
 	string: 'Authentication token string'
 };
@@ -19,9 +20,9 @@ class App extends Component {
 			<Router>
 				<div className="App">
 					<Switch>
-						<Route path="/login" render={props => <Login accessToken={accessToken} baseUrl={baseUrl} {...props} />} />
-						<Route path="/logout" render={props => <Logout accessToken={accessToken} {...props} />} />
-						<Route path="/tickets" render={() => <TicketList accessToken={accessToken} baseUrl={baseUrl} />} />
+						<Route path="/login" render={props => <Login authenticationData={authenticationDataLocalStorageKeys} baseUrl={baseUrl} {...props} />} />
+						<Route path="/logout" render={props => <Logout authenticationData={authenticationDataLocalStorageKeys} {...props} />} />
+						<Route path="/tickets" render={() => <TicketList authenticationData={authenticationDataLocalStorageKeys} baseUrl={baseUrl} />} />
 					</Switch>
 				</div>
 			</Router>

@@ -104,8 +104,9 @@ class Login extends Component {
             .then(response => {
                 if (response.status === 200) {
                     self.setState({ isDataValid: true });
-                    localStorage.setItem(self.props.accessToken.header, response.data.tokenHeader);
-                    localStorage.setItem(self.props.accessToken.string, response.data.tokenString);
+                    localStorage.setItem(self.props.authenticationData.userId, response.data.userId);
+                    localStorage.setItem(self.props.authenticationData.header, response.data.tokenHeader);
+                    localStorage.setItem(self.props.authenticationData.string, response.data.tokenString);
                     self.props.history.push('/tickets')
                 }
             })

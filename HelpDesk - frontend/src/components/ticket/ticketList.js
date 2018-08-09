@@ -58,29 +58,35 @@ class TicketList extends Component {
 
     componentDidMount() {
         this.loadTickets();
-        this.loadTickets(true);
     }
 
-    loadTickets(isMine) {
-        let url = this.props.baseUrl + '/tickets';
-        url += isMine ? '?my' : '';
-        console.log(url);
-        let self = this;
-        let tickets = [];
-        let header = localStorage.getItem(self.props.accessToken.header);
-        let string = localStorage.getItem(self.props.accessToken.string);
+    loadTickets() {
+        let userId = localStorage.getItem(this.props.authenticationData.userId);
+        let header = localStorage.getItem(this.props.authenticationData.header);
+        let string = localStorage.getItem(this.props.authenticationData.string);
+        
+        let url = this.props.baseUrl + `/users/${userId}/tickets`;
         let config = {
             headers: {
                 [header]: string
             }
         };
 
+        let self = this;
+        let allTickets = [];
+        let myTickets = [];
+
         axios
             .get(url, config)
             .then(response => {
                 if (response.status === 200) {
-                    response.data.map(ticket => tickets.push(ticket));
-                    isMine ? self.setState({ myTickets: tickets }) : self.setState({ tickets: tickets, allTickets: tickets });
+                    response.data.map(ticket => allTickets.push(ticket));
+                    myTickets = self.filterTicketsByCurrentUser(allTickets);
+                    self.setState({
+                        tickets: allTickets,
+                        allTickets: allTickets,
+                        myTickets: myTickets
+                    });
                 }
             })
             .catch(error => {
@@ -121,6 +127,11 @@ class TicketList extends Component {
 
     toggleButtonColorClass(isActive) {
         return isActive ? buttonColorClass.active : buttonColorClass.inactive;
+    }
+
+    filterTicketsByCurrentUser(tickets) {
+        let userId = +localStorage.getItem(this.props.authenticationData.userId);
+        return tickets.filter(ticket => ticket.owner.id === userId);
     }
 }
 
