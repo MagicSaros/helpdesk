@@ -3,18 +3,18 @@ package com.epam.dto;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class AuthenticationTokenDto {
-    private final Long userId;
+    private final UserDto user;
     private final String tokenString;
     private final String tokenHeader;
 
-    public AuthenticationTokenDto(Long userId, String tokenString, String tokenHeader) {
-        this.userId = userId;
+    public AuthenticationTokenDto(UserDto user, String tokenString, String tokenHeader) {
+        this.user = user;
         this.tokenString = tokenString;
         this.tokenHeader = tokenHeader;
     }
 
-    public Long getUserId() {
-        return userId;
+    public UserDto getUser() {
+        return user;
     }
 
     public String getTokenString() {
@@ -28,7 +28,7 @@ public class AuthenticationTokenDto {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-            .append("userId", userId)
+            .append("user", user)
             .append("tokenString", tokenString)
             .append("tokenHeader", tokenHeader)
             .toString();

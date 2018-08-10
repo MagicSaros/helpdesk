@@ -1,5 +1,6 @@
 package com.epam.controller;
 
+import com.epam.converter.implementation.UserDtoConverter;
 import com.epam.dto.AuthenticationTokenDto;
 import com.epam.dto.UserDetailsDto;
 import com.epam.entity.User;
@@ -30,6 +31,9 @@ public class AuthenticationController {
     private UserService userService;
 
     @Autowired
+    private UserDtoConverter userDtoConverter;
+
+    @Autowired
     private EncryptionService encryptionService;
 
     @PostMapping(value = "/login")
@@ -49,7 +53,7 @@ public class AuthenticationController {
             LOGGER.info("Verified");
             User user = userService.getUserByEmail(userDetails.getUsername());
             String tokenString = encryptionService.encode(userDetailsDto.getUsername());
-            AuthenticationTokenDto token = new AuthenticationTokenDto(user.getId(), tokenString, TOKEN_HEADER);
+            AuthenticationTokenDto token = new AuthenticationTokenDto(userDtoConverter.fromEntityToDto(user), tokenString, TOKEN_HEADER);
             LOGGER.debug("Token: " + token.toString());
             return new ResponseEntity<>(token, HttpStatus.OK);
         } else {

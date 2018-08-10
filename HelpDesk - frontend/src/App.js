@@ -6,7 +6,7 @@ import './App.css';
 import TicketList from './components/ticket/ticketList';
 
 const authenticationDataLocalStorageKeys = {
-	userId: 'User id',
+	user: 'User',
 	header: 'Authentication token header',
 	string: 'Authentication token string'
 };

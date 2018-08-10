@@ -3,6 +3,7 @@ import axios from 'axios';
 
 import TicketTable from './ticketTable';
 import Navbar from './../navbar';
+import Util from './../util';
 import './ticketList.css';
 
 const buttonColorClass = {
@@ -20,6 +21,11 @@ class TicketList extends Component {
             isClickedAllTickets: true,
             isClickedMyTickets: false
         };
+        this.userRole = {
+            MANAGER: 'MANAGER',
+            EMPLOYEE: 'EMPLOYEE',
+            ENGINEER: 'ENGINEER'
+        };
     }
 
     render() {
@@ -34,16 +40,16 @@ class TicketList extends Component {
 
                 <div className="row my-5">
                     <div className="col-sm-6">
-                        <button className={`btn ${this.toggleButtonColorClass(this.state.isClickedAllTickets)} btn-block`} onClick={() => this.fillTickets('all')}>All Tickets</button>
+                        <button name="allTickets" className={`btn ${this.toggleButtonColorClass(this.state.isClickedAllTickets)} btn-block`} onClick={event => this.fillTickets(event)}>All Tickets</button>
                     </div>
                     <div className="col-sm-6">
-                        <button className={`btn ${this.toggleButtonColorClass(this.state.isClickedMyTickets)} btn-block`} onClick={() => this.fillTickets('my')}>My Tickets</button>
+                        <button name="myTickets" className={`btn ${this.toggleButtonColorClass(this.state.isClickedMyTickets)} btn-block`} onClick={event => this.fillTickets(event)}>My Tickets</button>
                     </div>
                 </div>
 
                 <div className="row my-5">
                     <div className="col-sm-4">
-                        <input type="search" className="form-control search-input" />
+                        <input type="search" className="form-control search-input" onChange={event => this.handleSearch(event)} autoFocus />
                     </div>
                 </div>
 
@@ -61,11 +67,11 @@ class TicketList extends Component {
     }
 
     loadTickets() {
-        let userId = localStorage.getItem(this.props.authenticationData.userId);
+        let user = JSON.parse(localStorage.getItem(this.props.authenticationData.user));
         let header = localStorage.getItem(this.props.authenticationData.header);
         let string = localStorage.getItem(this.props.authenticationData.string);
         
-        let url = this.props.baseUrl + `/users/${userId}/tickets`;
+        let url = this.props.baseUrl + `/users/${user.id}/tickets`;
         let config = {
             headers: {
                 [header]: string
@@ -100,23 +106,58 @@ class TicketList extends Component {
             });
     }
 
-    fillTickets(mode) {
+    handleSearch(event) {
+        let tickets = [];
+        if (this.state.isClickedAllTickets) {
+            tickets = this.state.allTickets;
+        } else if (this.state.isClickedMyTickets) {
+            tickets = this.state.myTickets;
+        }
+        this.setState({ tickets: tickets });
+
+        let pattern = event.target.value.trim();
+        if (!pattern) {
+            return;
+        }
+
+        let re = new RegExp(`${pattern}`, 'i');
+        let filteredTickets = [];
+
+        tickets.forEach(ticket => {
+            if (`${ticket['id']}`.match(re)
+                || ticket['name'].match(re)
+                || ticket['urgency'].match(re)
+                || ticket['state'].match(re)
+                || Util.toShortDateFormat(ticket['desiredResolutionDate']).match(re)) {
+                filteredTickets.push(ticket);
+            }
+        });
+
+        this.setState({
+            tickets: filteredTickets
+        });
+    }
+
+    fillTickets(event) {
+        let buttonName = event.target.name;
         let tickets = [];
         let isAll = false;
         let isMy = false;
-        switch (mode) {
-            case 'all':
+        switch (buttonName) {
+            case 'allTickets':
                 tickets = this.state.allTickets;
                 isAll = true;
                 isMy = false;
                 break;
-            case 'my':
+            case 'myTickets':
                 tickets = this.state.myTickets;
                 isAll = false;
                 isMy = true;
                 break;
             default:
-                this.fillTickets('all');
+                tickets = this.state.tickets;
+                isAll = this.state.isAll;
+                isMy = this.state.isMy;
         }
         this.setState({
             tickets: tickets,
@@ -130,8 +171,20 @@ class TicketList extends Component {
     }
 
     filterTicketsByCurrentUser(tickets) {
-        let userId = +localStorage.getItem(this.props.authenticationData.userId);
-        return tickets.filter(ticket => ticket.owner.id === userId);
+        let user = JSON.parse(localStorage.getItem(this.props.authenticationData.user));
+        let userId = +user.id;
+        let role = user.role;
+        switch (role) {
+            case this.userRole.MANAGER:
+                return tickets.filter(ticket => ticket.owner.id === userId
+                    || (ticket.approver.id === userId && ticket.state === 'APPROVED'));
+            case this.userRole.EMPLOYEE:
+                return tickets.filter(ticket => ticket.owner.id === userId);
+            case this.userRole.ENGINEER:
+                return tickets.filter(ticket => ticket.assignee.id === userId);
+            default:
+                return tickets;
+        }
     }
 }
 

@@ -96,15 +96,13 @@ class Login extends Component {
             "username": this.state.username,
             "password": this.state.password
         };
-        
-        console.log('Username: ' + this.state.username);
 
         axios
             .post(url, payload)
             .then(response => {
                 if (response.status === 200) {
                     self.setState({ isDataValid: true });
-                    localStorage.setItem(self.props.authenticationData.userId, response.data.userId);
+                    localStorage.setItem(self.props.authenticationData.user, JSON.stringify(response.data.user));
                     localStorage.setItem(self.props.authenticationData.header, response.data.tokenHeader);
                     localStorage.setItem(self.props.authenticationData.string, response.data.tokenString);
                     self.props.history.push('/tickets')
@@ -131,7 +129,7 @@ class Login extends Component {
                 usernameValid = value.match(/^([\w\W]+)@([\w\W]+\.)+([\w]{2,})$/i) && value.length <= 100;
                 fieldValidationErrors.username = usernameValid ? '' : 'invalid';
                 break;
-                case 'password':
+            case 'password':
                 passwordValid = value.match(/^.*(?=.*[a-z])(?=.*[A-Z])(?=.*[\d])(?=.*[\W]).*$/) && value.length >= 6 && value.length <= 20;
                 fieldValidationErrors.password = passwordValid ? '' : 'invalid';
                 break;

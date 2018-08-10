@@ -2,10 +2,6 @@ package com.epam.dto;
 
 import com.epam.enums.UserRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 
 public class UserDto {
 
@@ -14,6 +10,7 @@ public class UserDto {
     private String lastName;
     private UserRole role;
     private String email;
+    @JsonIgnore
     private String password;
 
     public UserDto() {
@@ -28,8 +25,6 @@ public class UserDto {
         this.password = builder.password;
     }
 
-    @NotNull
-    @Pattern(regexp = "[0-9]+")
     public Long getId() {
         return id;
     }
@@ -62,9 +57,6 @@ public class UserDto {
         this.role = role;
     }
 
-    @NotNull
-    @Email
-    @Size(max = 100)
     public String getEmail() {
         return email;
     }
@@ -73,7 +65,6 @@ public class UserDto {
         this.email = email;
     }
 
-    @JsonIgnore
     public String getPassword() {
         return password;
     }
