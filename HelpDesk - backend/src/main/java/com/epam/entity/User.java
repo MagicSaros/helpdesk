@@ -1,10 +1,14 @@
 package com.epam.entity;
 
 import com.epam.enums.UserRole;
-
-import javax.persistence.*;
-import java.util.Objects;
 import java.util.Set;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -22,6 +26,7 @@ public class User {
     private Set<Ticket> assignedTickets;
     private Set<Ticket> ownedTickets;
     private Set<Ticket> approvedTickets;
+    private Set<Comment> comments;
 
     public User() {
     }
@@ -36,6 +41,7 @@ public class User {
         this.assignedTickets = builder.assignedTickets;
         this.ownedTickets = builder.ownedTickets;
         this.approvedTickets = builder.approvedTickets;
+        this.comments = builder.comments;
     }
 
     @Id
@@ -111,13 +117,22 @@ public class User {
         this.ownedTickets = ownedTickets;
     }
 
-    @OneToMany(mappedBy = "approver", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "approver")
     public Set<Ticket> getApprovedTickets() {
         return approvedTickets;
     }
 
     public void setApprovedTickets(Set<Ticket> approvedTickets) {
         this.approvedTickets = approvedTickets;
+    }
+
+    @OneToMany(mappedBy = "user")
+    public Set<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(Set<Comment> comments) {
+        this.comments = comments;
     }
 
     public void addAssignee(Ticket ticket) {
@@ -189,8 +204,6 @@ public class User {
             .toString();
     }
 
-    //todo take a look on appache builder and hashcode
-
     public static class Builder {
 
         private Long id;
@@ -202,6 +215,7 @@ public class User {
         private Set<Ticket> assignedTickets;
         private Set<Ticket> ownedTickets;
         private Set<Ticket> approvedTickets;
+        private Set<Comment> comments;
 
         public Builder setId(Long id) {
             this.id = id;
@@ -245,6 +259,11 @@ public class User {
 
         public Builder setApprovedTickets(Set<Ticket> approvedTickets) {
             this.approvedTickets = approvedTickets;
+            return this;
+        }
+
+        public Builder setComments(Set<Comment> comments) {
+            this.comments = comments;
             return this;
         }
 

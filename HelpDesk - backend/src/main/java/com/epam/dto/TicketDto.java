@@ -2,8 +2,8 @@ package com.epam.dto;
 
 import com.epam.enums.State;
 import com.epam.enums.Urgency;
-
 import java.util.Date;
+import javax.validation.constraints.Size;
 
 public class TicketDto {
 
@@ -44,6 +44,7 @@ public class TicketDto {
         this.id = id;
     }
 
+    @Size(max = 100)
     public String getName() {
         return name;
     }
@@ -52,6 +53,7 @@ public class TicketDto {
         this.name = name;
     }
 
+    @Size(max = 500)
     public String getDescription() {
         return description;
     }

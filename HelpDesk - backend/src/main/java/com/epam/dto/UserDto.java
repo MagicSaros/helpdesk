@@ -2,6 +2,11 @@ package com.epam.dto;
 
 import com.epam.enums.UserRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 public class UserDto {
 
@@ -10,7 +15,6 @@ public class UserDto {
     private String lastName;
     private UserRole role;
     private String email;
-    @JsonIgnore
     private String password;
 
     public UserDto() {
@@ -33,6 +37,7 @@ public class UserDto {
         this.id = id;
     }
 
+    @NotEmpty
     public String getFirstName() {
         return firstName;
     }
@@ -41,6 +46,7 @@ public class UserDto {
         this.firstName = firstName;
     }
 
+    @NotEmpty
     public String getLastName() {
         return lastName;
     }
@@ -49,6 +55,7 @@ public class UserDto {
         this.lastName = lastName;
     }
 
+    @NotNull
     public UserRole getRole() {
         return role;
     }
@@ -57,6 +64,8 @@ public class UserDto {
         this.role = role;
     }
 
+    @Email
+    @Size(max = 100)
     public String getEmail() {
         return email;
     }
@@ -65,6 +74,9 @@ public class UserDto {
         this.email = email;
     }
 
+    @JsonIgnore
+    @NotNull
+    @Size(min = 6, max = 20)
     public String getPassword() {
         return password;
     }

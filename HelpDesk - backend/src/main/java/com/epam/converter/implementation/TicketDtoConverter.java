@@ -3,8 +3,6 @@ package com.epam.converter.implementation;
 import com.epam.converter.DtoConverter;
 import com.epam.dto.TicketDto;
 import com.epam.entity.Ticket;
-import com.epam.exception.DtoNotFoundException;
-import com.epam.exception.TicketNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +18,7 @@ public class TicketDtoConverter implements DtoConverter<Ticket, TicketDto> {
     @Override
     public TicketDto fromEntityToDto(final Ticket ticket) {
         if (ticket == null) {
-            throw new TicketNotFoundException("Ticket is null");
+            return null;
         }
         return new TicketDto.Builder()
             .setId(ticket.getId())
@@ -40,7 +38,7 @@ public class TicketDtoConverter implements DtoConverter<Ticket, TicketDto> {
     @Override
     public Ticket fromDtoToEntity(final TicketDto dto) {
         if (dto == null) {
-            throw new DtoNotFoundException("Ticket DTO is null");
+            return null;
         }
         return new Ticket.Builder()
             .setId(dto.getId())

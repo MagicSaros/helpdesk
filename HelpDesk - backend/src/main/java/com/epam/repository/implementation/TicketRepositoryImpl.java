@@ -5,13 +5,13 @@ import com.epam.entity.User;
 import com.epam.enums.State;
 import com.epam.enums.UserRole;
 import com.epam.repository.TicketRepository;
+import java.util.List;
+import java.util.Optional;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public class TicketRepositoryImpl implements TicketRepository {
@@ -26,6 +26,13 @@ public class TicketRepositoryImpl implements TicketRepository {
         return query.list();
     }
 
+    @Override
+    public Optional<Ticket> getTicketById(Long id) {
+        Session session = sessionFactory.getCurrentSession();
+        Ticket ticket = session.get(Ticket.class, id);
+        return Optional.ofNullable(ticket);
+    }
+
     public List<Ticket> getTicketsByOwner(User owner) {
         Session session = sessionFactory.getCurrentSession();
         Query<Ticket> query = session.createQuery("from Ticket where owner = :owner", Ticket.class);
@@ -36,7 +43,8 @@ public class TicketRepositoryImpl implements TicketRepository {
     @Override
     public List<Ticket> getTicketsByOwnerAndState(User owner, State state) {
         Session session = sessionFactory.getCurrentSession();
-        Query<Ticket> query = session.createQuery("from Ticket where owner = :owner and state = :state", Ticket.class);
+        Query<Ticket> query = session
+            .createQuery("from Ticket where owner = :owner and state = :state", Ticket.class);
         query.setParameter("owner", owner);
         query.setParameter("state", state);
         return query.list();
@@ -45,7 +53,8 @@ public class TicketRepositoryImpl implements TicketRepository {
     @Override
     public List<Ticket> getTicketsByApprover(User approver) {
         Session session = sessionFactory.getCurrentSession();
-        Query<Ticket> query = session.createQuery("from Ticket where approver = :approver", Ticket.class);
+        Query<Ticket> query = session
+            .createQuery("from Ticket where approver = :approver", Ticket.class);
         query.setParameter("approver", approver);
         return query.list();
     }
@@ -53,7 +62,8 @@ public class TicketRepositoryImpl implements TicketRepository {
     @Override
     public List<Ticket> getTicketsByAssignee(User assignee) {
         Session session = sessionFactory.getCurrentSession();
-        Query<Ticket> query = session.createQuery("from Ticket where assignee = :assignee", Ticket.class);
+        Query<Ticket> query = session
+            .createQuery("from Ticket where assignee = :assignee", Ticket.class);
         query.setParameter("assignee", assignee);
         return query.list();
     }
@@ -61,7 +71,8 @@ public class TicketRepositoryImpl implements TicketRepository {
     @Override
     public List<Ticket> getTicketsByRole(UserRole role) {
         Session session = sessionFactory.getCurrentSession();
-        Query<Ticket> query = session.createQuery("from Ticket where owner.role = :role", Ticket.class);
+        Query<Ticket> query = session
+            .createQuery("from Ticket where owner.role = :role", Ticket.class);
         query.setParameter("role", role);
         return query.list();
     }
@@ -69,7 +80,8 @@ public class TicketRepositoryImpl implements TicketRepository {
     @Override
     public List<Ticket> getTicketsByRoleAndState(UserRole role, State state) {
         Session session = sessionFactory.getCurrentSession();
-        Query<Ticket> query = session.createQuery("from Ticket where owner.role = :role and state = :state", Ticket.class);
+        Query<Ticket> query = session
+            .createQuery("from Ticket where owner.role = :role and state = :state", Ticket.class);
         query.setParameter("role", role);
         query.setParameter("state", state);
         return query.list();
@@ -81,5 +93,12 @@ public class TicketRepositoryImpl implements TicketRepository {
         Query<Ticket> query = session.createQuery("from Ticket where state = :state", Ticket.class);
         query.setParameter("state", state);
         return query.list();
+    }
+
+    @Override
+    public Ticket addTicket(Ticket ticket) {
+        Session session = sessionFactory.getCurrentSession();
+        session.save(ticket);
+        return ticket;
     }
 }

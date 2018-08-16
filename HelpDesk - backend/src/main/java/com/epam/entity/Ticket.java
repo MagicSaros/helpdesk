@@ -2,10 +2,18 @@ package com.epam.entity;
 
 import com.epam.enums.State;
 import com.epam.enums.Urgency;
-
-import javax.persistence.*;
 import java.util.Date;
-import java.util.Objects;
+import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -25,6 +33,8 @@ public class Ticket {
     private Category category;
     private Urgency urgency;
     private User approver;
+    private Set<Comment> comments;
+    private Set<Attachment> attachments;
 
     public Ticket() {
     }
@@ -41,6 +51,8 @@ public class Ticket {
         this.category = builder.category;
         this.urgency = builder.urgency;
         this.approver = builder.approver;
+        this.comments = builder.comments;
+        this.attachments = builder.attachments;
     }
 
     @Id
@@ -89,7 +101,7 @@ public class Ticket {
         this.desiredResolutionDate = desiredResolutionDate;
     }
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.MERGE})
     @JoinColumn(name = "assignee_id")
     public User getAssignee() {
         return assignee;
@@ -99,7 +111,7 @@ public class Ticket {
         this.assignee = assignee;
     }
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.MERGE})
     @JoinColumn(name = "owner_id")
     public User getOwner() {
         return owner;
@@ -118,7 +130,7 @@ public class Ticket {
         this.state = state;
     }
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.MERGE})
     @JoinColumn(name = "category_id")
     public Category getCategory() {
         return category;
@@ -137,7 +149,7 @@ public class Ticket {
         this.urgency = urgency;
     }
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.MERGE})
     @JoinColumn(name = "approver_id")
     public User getApprover() {
         return approver;
@@ -145,6 +157,24 @@ public class Ticket {
 
     public void setApprover(User approver) {
         this.approver = approver;
+    }
+
+    @OneToMany(mappedBy = "ticket", orphanRemoval = true)
+    public Set<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(Set<Comment> comments) {
+        this.comments = comments;
+    }
+
+    @OneToMany(mappedBy = "ticket", orphanRemoval = true)
+    public Set<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(Set<Attachment> attachments) {
+        this.attachments = attachments;
     }
 
     @Override
@@ -221,6 +251,8 @@ public class Ticket {
         private Category category;
         private Urgency urgency;
         private User approver;
+        private Set<Comment> comments;
+        private Set<Attachment> attachments;
 
         public Builder setId(Long id) {
             this.id = id;
@@ -274,6 +306,16 @@ public class Ticket {
 
         public Builder setApprover(User approver) {
             this.approver = approver;
+            return this;
+        }
+
+        public Builder setComments(Set<Comment> comments) {
+            this.comments = comments;
+            return this;
+        }
+
+        public Builder setAttacjments(Set<Attachment> attachments) {
+            this.attachments = attachments;
             return this;
         }
 

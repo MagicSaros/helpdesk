@@ -1,7 +1,10 @@
 package com.epam.entity;
 
-import javax.persistence.*;
-import java.util.Objects;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -11,6 +14,15 @@ public class Category {
 
     private Long id;
     private String name;
+
+    public Category() {
+
+    }
+
+    private Category(Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -63,5 +75,25 @@ public class Category {
             .append("id", id)
             .append("name", name)
             .toString();
+    }
+
+    public static class Builder {
+
+        private Long id;
+        private String name;
+
+        public Builder setId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Category build() {
+            return new Category(this);
+        }
     }
 }
