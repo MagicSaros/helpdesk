@@ -34,7 +34,7 @@ class TicketList extends Component {
                 <Navbar />
                 <div className="row my-5">
                     <div className="offset-sm-8 col-sm-4">
-                        <button className="btn btn-lg btn-success btn-block">Create New Ticket</button>
+                        <button className="btn btn-lg btn-success btn-block" onClick={() => this.openTicketCreation()}>Create New Ticket</button>
                     </div>
                 </div>
 
@@ -70,8 +70,9 @@ class TicketList extends Component {
         let user = JSON.parse(localStorage.getItem(this.props.authenticationData.user));
         let header = localStorage.getItem(this.props.authenticationData.header);
         let string = localStorage.getItem(this.props.authenticationData.string);
-        
-        let url = this.props.baseUrl + `/users/${user.id}/tickets`;
+        let userId = user ? user.id : 0;
+
+        let url = this.props.baseUrl + `/users/${userId}/tickets`;
         let config = {
             headers: {
                 [header]: string
@@ -124,11 +125,11 @@ class TicketList extends Component {
         let filteredTickets = [];
 
         tickets.forEach(ticket => {
-            if (`${ticket['id']}`.match(re)
-                || ticket['name'].match(re)
-                || ticket['urgency'].match(re)
-                || ticket['state'].match(re)
-                || Util.toShortDateFormat(ticket['desiredResolutionDate']).match(re)) {
+            if ((`${ticket['id']}` ? `${ticket['id']}`.match(re) : false)
+            || (ticket['name'] ? ticket['name'].match(re) : false)
+            || (ticket['urgency'] ? ticket['urgency'].match(re) : false)
+            || (ticket['state'] ? ticket['state'].match(re) : false)
+            || (ticket['desiredResolutionDate'] ? Util.toShortDateFormat(ticket['desiredResolutionDate']).match(re) : false)) {
                 filteredTickets.push(ticket);
             }
         });
@@ -185,6 +186,10 @@ class TicketList extends Component {
             default:
                 return tickets;
         }
+    }
+
+    openTicketCreation() {
+        this.props.history.push('/create');
     }
 }
 
