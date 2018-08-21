@@ -4,6 +4,7 @@ import axios from 'axios';
 import TicketTable from './ticketTable';
 import Navbar from './../navbar';
 import Util from './../util';
+import AuthorizationService from './../authorizationService';
 import './ticketList.css';
 
 const buttonColorClass = {
@@ -55,7 +56,7 @@ class TicketList extends Component {
 
                 <div className="row my-5">
                     <div className="col text-left">
-                        <TicketTable tickets={this.state.tickets} />
+                        <TicketTable tickets={this.state.tickets} history={this.props.history} />
                     </div>
                 </div>
             </div>
@@ -67,15 +68,14 @@ class TicketList extends Component {
     }
 
     loadTickets() {
-        let user = JSON.parse(localStorage.getItem(this.props.authenticationData.user));
-        let header = localStorage.getItem(this.props.authenticationData.header);
-        let string = localStorage.getItem(this.props.authenticationData.string);
+        let user = this.getCurrentUser();
+        let authToken = this.getAuthToken();
         let userId = user ? user.id : 0;
 
         let url = this.props.baseUrl + `/users/${userId}/tickets`;
         let config = {
             headers: {
-                [header]: string
+                [authToken.header]: authToken.string
             }
         };
 
@@ -172,7 +172,7 @@ class TicketList extends Component {
     }
 
     filterTicketsByCurrentUser(tickets) {
-        let user = JSON.parse(localStorage.getItem(this.props.authenticationData.user));
+        let user = this.getCurrentUser();
         let userId = +user.id;
         let role = user.role;
         switch (role) {
@@ -190,6 +190,14 @@ class TicketList extends Component {
 
     openTicketCreation() {
         this.props.history.push('/create');
+    }
+
+    getCurrentUser() {
+        return AuthorizationService.getCurrentUser();
+    }
+
+    getAuthToken() {
+        return AuthorizationService.getAuthorizationToken();
     }
 }
 

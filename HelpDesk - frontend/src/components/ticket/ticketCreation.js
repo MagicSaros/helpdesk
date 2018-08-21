@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import axios from "axios";
 
 import Util from './../util';
+import AuthorizationService from './../authorizationService';
 
 import './ticketCreation.css';
 
@@ -136,7 +137,7 @@ class TicketCreation extends Component {
                                 name="comment"
                                 id="comment"
                                 cols="25" rows="3"
-                                vlaue={this.state.comment}
+                                value={this.state.comment}
                                 onChange={event => this.updateField(event)}
                                 ></textarea>
                         </div>
@@ -278,29 +279,12 @@ class TicketCreation extends Component {
 
     
     getCurrentUser() {
-        let localStorageData = this.getLocalStorageData();
-        return localStorageData.user;
+        return AuthorizationService.getCurrentUser();
     }
     
     getAuthToken() {
-        let localStorageData = this.getLocalStorageData();
-        return localStorageData.authToken;
+        return AuthorizationService.getAuthorizationToken();
     }
-
-    getLocalStorageData() {
-        let user = JSON.parse(localStorage.getItem(this.props.authenticationData.user));
-        let header = localStorage.getItem(this.props.authenticationData.header);
-        let string = localStorage.getItem(this.props.authenticationData.string);
-
-        return {
-            user: user,
-            authToken: {
-                header: header,
-                string: string
-            }
-        };
-    }
-
 
     saveAsDraft(event) {
         event.preventDefault();
@@ -325,20 +309,16 @@ class TicketCreation extends Component {
         };
 
         let name = this.state.name.toLowerCase();
-        let urgency = this.state.urgency ? this.state.urgency : 'LOW';
-        let categoryId = this.state.categoryId ? this.state.categoryId : 1;
 
         let payload = {
-            "category": {
-                "id": categoryId
-            },
             "name": name,
-            "urgency": urgency,
             "state": "DRAFT"
         };
 
         if (this.state.description) payload["description"] = this.state.description;
         if (this.state.desiredDate) payload["desiredResolutionDate"] = Util.parseDate(this.state.desiredDate);
+        if (this.state.urgency) payload["urgency"] = this.state.urgency;
+        if (this.state.categoryId) payload["category"] = { "id": this.state.categoryId };
 
         this.sendTicket(url, payload, config);
     }

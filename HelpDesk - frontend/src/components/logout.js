@@ -1,14 +1,15 @@
 import { Component } from 'react';
 
+import AuthorizationService from './authorizationService';
+
 class Logout extends Component {
     render() {
         return null;
     }
 
     componentDidMount() {
-        localStorage.removeItem(this.props.authenticationData.user);
-        localStorage.removeItem(this.props.authenticationData.header);
-        localStorage.removeItem(this.props.authenticationData.string);
+        AuthorizationService.deleteCurrentUser();
+        AuthorizationService.deleteAuthorizationToken();
         this.props.history.push('/login')
     }
 }

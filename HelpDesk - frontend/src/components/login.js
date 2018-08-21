@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 
+import AuthorizationService from './authorizationService';
 import "./login.css";
 
 
@@ -102,9 +103,11 @@ class Login extends Component {
             .then(response => {
                 if (response.status === 200) {
                     self.setState({ isDataValid: true });
-                    localStorage.setItem(self.props.authenticationData.user, JSON.stringify(response.data.user));
-                    localStorage.setItem(self.props.authenticationData.header, response.data.tokenHeader);
-                    localStorage.setItem(self.props.authenticationData.string, response.data.tokenString);
+                    AuthorizationService.setCurrentUser(response.data.user);
+                    AuthorizationService.setAuthorizationToken({
+                        header: response.data.tokenHeader,
+                        string: response.data.tokenString
+                    });
                     self.props.history.push('/tickets')
                 }
             })

@@ -7,7 +7,13 @@ class Util extends Component {
     }
 
     static toShortDateFormat(milliseconds) {
-        return new Date(milliseconds).toLocaleDateString();
+        return new Date(milliseconds).toLocaleDateString('ru').replace('.', '/').replace('.', '/');
+    }
+
+    static toShortDateTimeFormat(milliseconds) {
+        let date = new Date(milliseconds);
+        let dateAsString = `${date.toLocaleDateString('en', { month: 'short', day: 'numeric' })}, ${date.getFullYear()} ${date.toLocaleTimeString('eu')}`;
+        return dateAsString;
     }
 
     static parseDate(value) {

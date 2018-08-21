@@ -17,18 +17,18 @@ class TicketTable extends Component {
         return(
             <table className="table table-sm table-bordered">
                 <thead className="thead-light">
-                    <tr>
-                        <td className="table-secondary p-2" onClick={() => this.sort('id')}>Id</td>
-                        <td className="table-secondary p-2" onClick={() => this.sort('name')}>Name</td>
-                        <td className="table-secondary p-2" onClick={() => this.sort('desired date')}>Desired date</td>
-                        <td className="table-secondary p-2" onClick={() => this.sort('urgency')}>Urgency</td>
-                        <td className="table-secondary p-2" onClick={() => this.sort('status')}>Status</td>
-                        <td className="table-secondary p-2">Action</td>
+                    <tr className="d-flex">
+                        <td className="table-secondary p-2 col-1" onClick={() => this.sort('id')}>Id</td>
+                        <td className="table-secondary p-2 col-2" onClick={() => this.sort('name')}>Name</td>
+                        <td className="table-secondary p-2 col-2" onClick={() => this.sort('desired date')}>Desired date</td>
+                        <td className="table-secondary p-2 col-2" onClick={() => this.sort('urgency')}>Urgency</td>
+                        <td className="table-secondary p-2 col-2" onClick={() => this.sort('status')}>Status</td>
+                        <td className="table-secondary p-2 col-3">Action</td>
                     </tr>
                 </thead>
                 <tbody>
                     { this.state.tickets
-                        .map(ticket => (<TicketItem key={ticket.id} ticket={ticket} />)) }
+                        .map(ticket => (<TicketItem key={ticket.id} ticket={ticket} history={this.props.history} />)) }
                 </tbody>
             </table>
         );

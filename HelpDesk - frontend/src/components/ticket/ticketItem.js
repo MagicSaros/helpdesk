@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 
 import Util from './../util';
 
-import './ticketItem.css';
-
 class TicketItem extends Component {
     constructor(props) {
         super(props);
@@ -14,24 +12,28 @@ class TicketItem extends Component {
     }
 
     render() {
+        let name = this.props.ticket.name ? this.props.ticket.name : '-';
+        let date = this.props.ticket.desiredResolutionDate ? Util.toShortDateFormat(this.props.ticket.desiredResolutionDate) : '';
+        let urgency = this.props.ticket.urgency ? Util.capitalize(this.props.ticket.urgency) : '';
+
         return (
-            <tr>
-                <td className="p-2">
+            <tr className="d-flex">
+                <td className="p-2 col-1">
                     {this.props.ticket.id}
                 </td>
-                <td className="p-2">
-                    {this.props.ticket.name}
+                <td className="p-2 col-2">
+                    <a href="" onClick={event => this.showTicketOverview(event)}>{name}</a>
                 </td>
-                <td className="p-2">
-                    {Util.toShortDateFormat(this.props.ticket.desiredResolutionDate)}
+                <td className="p-2 col-2">
+                    {date}
                 </td>
-                <td className="p-2">
-                    {Util.capitalize(this.props.ticket.urgency)}
+                <td className="p-2 col-2">
+                    {urgency}
                 </td>
-                <td className="p-2">
+                <td className="p-2 col-2">
                     {Util.capitalize(this.props.ticket.state)}
                 </td>
-                <td className="p-2 dropdown-td">
+                <td className="p-2 col-3">
                     <div className="btn-group">
                         <button type="button" className="btn btn-success">
                             {this.state.currentAction}
@@ -48,6 +50,11 @@ class TicketItem extends Component {
                 </td>
             </tr>
         );
+    }
+
+    showTicketOverview(event) {
+        event.preventDefault();
+        this.props.history.push('/overview', this.props.ticket);
     }
 }
 
