@@ -2,7 +2,7 @@ CREATE TABLE comment(
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     user_id INTEGER,
     text TEXT(500),
-    date DATE,
+    date TIMESTAMP,
     ticket_id INTEGER,
 
     CONSTRAINT users_fk FOREIGN KEY (user_id) REFERENCES user (id),

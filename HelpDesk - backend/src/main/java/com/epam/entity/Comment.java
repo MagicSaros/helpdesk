@@ -1,5 +1,6 @@
 package com.epam.entity;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -21,7 +22,7 @@ public class Comment {
     private Long id;
     private User user;
     private String text;
-    private Date date;
+    private Timestamp date;
     private Ticket ticket;
 
     public Comment() {
@@ -65,11 +66,11 @@ public class Comment {
     }
 
     @Column
-    public Date getDate() {
+    public Timestamp getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(Timestamp date) {
         this.date = date;
     }
 
@@ -131,7 +132,7 @@ public class Comment {
         private Long id;
         private User user;
         private String text;
-        private Date date;
+        private Timestamp date;
         private Ticket ticket;
 
         public Builder setId(Long id) {
@@ -150,7 +151,7 @@ public class Comment {
             return this;
         }
 
-        public Builder setDate(Date date) {
+        public Builder setDate(Timestamp date) {
             this.date = date;
             return this;
         }

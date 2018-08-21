@@ -1,10 +1,12 @@
 package com.epam.handler;
 
 import com.epam.exception.ApiError;
+import com.epam.exception.AttachmentNotFoundException;
 import com.epam.exception.BadCredentialsException;
 import com.epam.exception.CategoryNotFoundException;
+import com.epam.exception.CommentNotFoundException;
 import com.epam.exception.DtoNotFoundException;
-import com.epam.exception.FileUploadException;
+import com.epam.exception.FileLoadingException;
 import com.epam.exception.TicketNotFoundException;
 import com.epam.exception.UserNotFoundException;
 import java.util.Date;
@@ -30,7 +32,7 @@ public class RestResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler({UserNotFoundException.class, CategoryNotFoundException.class,
-        TicketNotFoundException.class})
+        TicketNotFoundException.class, AttachmentNotFoundException.class, CommentNotFoundException.class})
     public ResponseEntity<ApiError> handleEntitiesNotFound(Exception e) {
         ApiError apiError = new ApiError.Builder()
             .setTitle("Resource not found")
@@ -66,7 +68,7 @@ public class RestResponseEntityExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({FileUploadException.class})
+    @ExceptionHandler({FileLoadingException.class})
     public ResponseEntity<ApiError> handleFileUploadingError(Exception e) {
         ApiError apiError = new ApiError.Builder()
             .setTitle("File uploading error")

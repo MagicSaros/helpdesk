@@ -1,6 +1,6 @@
 package com.epam.dto;
 
-import java.util.Date;
+import java.sql.Timestamp;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
@@ -9,7 +9,7 @@ public class CommentDto {
     private Long id;
     private UserDto user;
     private String text;
-    private Date date;
+    private Timestamp date;
     private TicketDto ticket;
 
     public CommentDto() {
@@ -50,11 +50,11 @@ public class CommentDto {
         this.text = text;
     }
 
-    public Date getDate() {
+    public Timestamp getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(Timestamp date) {
         this.date = date;
     }
 
@@ -71,7 +71,7 @@ public class CommentDto {
         private Long id;
         private UserDto user;
         private String text;
-        private Date date;
+        private Timestamp date;
         private TicketDto ticket;
 
         public Builder setId(Long id) {
@@ -89,7 +89,7 @@ public class CommentDto {
             return this;
         }
 
-        public Builder setDate(Date date) {
+        public Builder setDate(Timestamp date) {
             this.date = date;
             return this;
         }

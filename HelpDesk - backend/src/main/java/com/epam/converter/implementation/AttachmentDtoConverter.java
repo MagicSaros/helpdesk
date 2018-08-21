@@ -13,7 +13,7 @@ public class AttachmentDtoConverter implements DtoConverter<Attachment, Attachme
     private TicketDtoConverter ticketDtoConverter;
 
     @Override
-    public AttachmentDto fromEntityToDto(Attachment attachment) {
+    public AttachmentDto fromEntityToDto(final Attachment attachment) {
         if (attachment == null) {
             return null;
         }
@@ -26,7 +26,7 @@ public class AttachmentDtoConverter implements DtoConverter<Attachment, Attachme
     }
 
     @Override
-    public Attachment fromDtoToEntity(AttachmentDto attachmentDto) {
+    public Attachment fromDtoToEntity(final AttachmentDto attachmentDto) {
         if (attachmentDto == null) {
             return null;
         }

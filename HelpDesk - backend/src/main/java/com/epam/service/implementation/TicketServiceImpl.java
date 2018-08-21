@@ -10,7 +10,6 @@ import com.epam.repository.TicketRepository;
 import com.epam.service.CategoryService;
 import com.epam.service.TicketService;
 import com.epam.service.UserService;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,14 +64,15 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public Ticket addTicket(Ticket ticket) {
-        ticket.setCreatedOn(new Date());
         ticket.setAssignee(null);
         ticket.setApprover(null);
 
         Category category = ticket.getCategory();
-        Long categoryId = category.getId();
-        category = categoryService.getCategoryById(categoryId);
-        ticket.setCategory(category);
+        if (category != null) {
+            Long categoryId = category.getId();
+            category = categoryService.getCategoryById(categoryId);
+            ticket.setCategory(category);
+        }
 
         return ticketRepository.addTicket(ticket);
     }

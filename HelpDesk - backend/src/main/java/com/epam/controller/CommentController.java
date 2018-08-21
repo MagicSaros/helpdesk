@@ -8,11 +8,15 @@ import com.epam.entity.User;
 import com.epam.service.CommentService;
 import com.epam.service.TicketService;
 import com.epam.service.UserService;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,6 +39,17 @@ public class CommentController {
 
     @Autowired
     private CommentDtoConverter commentDtoConverter;
+
+    @GetMapping
+    public ResponseEntity<List<CommentDto>> getCommentsByTicketId(@PathVariable Long userId,
+        @PathVariable Long ticketId) {
+        List<CommentDto> comments = commentService
+            .getCommentsByTicketId(ticketId)
+            .stream()
+            .map(comment -> commentDtoConverter.fromEntityToDto(comment))
+            .collect(Collectors.toList());
+        return new ResponseEntity<>(comments, HttpStatus.OK);
+    }
 
     @PostMapping
     public ResponseEntity<CommentDto> createComment(@PathVariable Long userId,

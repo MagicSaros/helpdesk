@@ -6,7 +6,9 @@ import com.epam.repository.CommentRepository;
 import com.epam.service.CommentService;
 import com.epam.service.TicketService;
 import com.epam.service.UserService;
+import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,7 +36,13 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Comment addComment(Comment comment) {
-        comment.setDate(new Date());
+        long time = new Date().getTime();
+        comment.setDate(new Timestamp(time));
         return commentRepository.addComment(comment);
+    }
+
+    @Override
+    public List<Comment> getCommentsByTicketId(Long id) {
+        return commentRepository.getCommentsByTicketId(id);
     }
 }

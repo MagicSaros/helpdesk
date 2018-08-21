@@ -4,15 +4,23 @@ import com.epam.converter.implementation.AttachmentDtoConverter;
 import com.epam.dto.AttachmentDto;
 import com.epam.entity.Attachment;
 import com.epam.entity.Ticket;
-import com.epam.exception.FileUploadException;
+import com.epam.exception.FileLoadingException;
 import com.epam.service.AttachmentService;
 import com.epam.service.TicketService;
+import java.io.IOException;
 import java.sql.Blob;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.sql.rowset.serial.SerialBlob;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,28 +42,49 @@ public class AttachmentController {
     @Autowired
     private AttachmentDtoConverter attachmentDtoConverter;
 
+    @GetMapping
+    public ResponseEntity<List<AttachmentDto>> getAttachmentsByTicketId(@PathVariable Long userId,
+        @PathVariable Long ticketId) {
+        List<AttachmentDto> attachments = attachmentService
+            .getAttachmentsByTicketId(ticketId)
+            .stream()
+            .map(attachment -> attachmentDtoConverter.fromEntityToDto(attachment))
+            .collect(Collectors.toList());
+        return new ResponseEntity<>(attachments, HttpStatus.OK);
+    }
+
+    @GetMapping("/{attachmentId}")
+    public ResponseEntity<AttachmentDto> getAttachment(@PathVariable Long userId,
+        @PathVariable Long ticketId, @PathVariable Long attachmentId) {
+        Attachment attachment = attachmentService.getAttachmentById(attachmentId);
+        AttachmentDto attachmentDto = attachmentDtoConverter.fromEntityToDto(attachment);
+        return new ResponseEntity<>(attachmentDto, HttpStatus.OK);
+    }
+
+    @GetMapping("/{attachmentId}/download")
+    private ResponseEntity<byte[]> getFileFromAttachment(@PathVariable Long userId,
+        @PathVariable Long ticketId, @PathVariable Long attachmentId) {
+        Attachment attachment = attachmentService.getAttachmentById(attachmentId);
+
+        byte[] bytes = attachmentService.getFileAsResource(attachment);
+
+        return ResponseEntity
+            .ok()
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .contentLength(bytes.length)
+            .body(bytes);
+    }
+
     @PostMapping
     public ResponseEntity<AttachmentDto> createAttachment(@PathVariable Long userId,
         @PathVariable Long ticketId, @RequestParam("file") MultipartFile multipartFile) {
-        if (multipartFile.isEmpty()) {
-            throw new FileUploadException(
-                "File has not been chosen in the multipart form or the chosen file has no content");
-        }
-
-        String name = multipartFile.getOriginalFilename();
-        Blob blob = null;
-        try {
-            blob = new SerialBlob(multipartFile.getBytes());
-        } catch (Exception e) {
-            throw new FileUploadException(e.getMessage());
-        }
         Ticket ticket = ticketService.getTicketById(ticketId);
 
         Attachment attachment = new Attachment.Builder()
-            .setName(name)
-            .setBlob(blob)
             .setTicket(ticket)
             .build();
+        attachmentService.setFileAsBlob(attachment, multipartFile);
+
         attachment = attachmentService.addAttachment(attachment);
         AttachmentDto attachmentDto = attachmentDtoConverter.fromEntityToDto(attachment);
         return new ResponseEntity<>(attachmentDto, HttpStatus.CREATED);

@@ -48,6 +48,13 @@ public class TicketController {
         return new ResponseEntity<>(ticketsDto, HttpStatus.OK);
     }
 
+    @GetMapping("/{ticketId}")
+    public ResponseEntity<TicketDto> getTicket(@PathVariable Long userId, @PathVariable Long ticketId) {
+        Ticket ticket = ticketService.getTicketById(ticketId);
+        TicketDto ticketDto = ticketDtoConverter.fromEntityToDto(ticket);
+        return new ResponseEntity<>(ticketDto, HttpStatus.OK);
+    }
+
     @PostMapping
     public ResponseEntity<TicketDto> createTicket(@PathVariable Long userId,
         @Valid @RequestBody TicketDto ticketDto) {
