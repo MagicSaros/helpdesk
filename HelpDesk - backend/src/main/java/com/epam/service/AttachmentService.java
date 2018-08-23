@@ -15,4 +15,8 @@ public interface AttachmentService {
     void setFileAsBlob(Attachment attachment, MultipartFile file);
 
     byte[] getFileAsResource(Attachment attachment);
+
+    Attachment removeAttachment(Long id);
+
+    Attachment updateAttachment(Attachment attachment);
 }

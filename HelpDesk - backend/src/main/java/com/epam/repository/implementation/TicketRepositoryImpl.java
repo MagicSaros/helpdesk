@@ -101,4 +101,11 @@ public class TicketRepositoryImpl implements TicketRepository {
         session.save(ticket);
         return ticket;
     }
+
+    @Override
+    public Ticket updateTicket(Ticket ticket) {
+        Session session = sessionFactory.getCurrentSession();
+        session.saveOrUpdate(ticket);
+        return ticket;
+    }
 }

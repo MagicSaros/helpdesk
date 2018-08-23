@@ -15,4 +15,6 @@ public interface TicketService {
     List<Ticket> getTicketsByOwner(User owner);
 
     Ticket addTicket(Ticket ticket);
+
+    Ticket updateTicket(Ticket ticket);
 }

@@ -12,7 +12,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -51,14 +50,27 @@ public class AttachmentRepositoryImpl implements AttachmentRepository {
         Session session = sessionFactory.getCurrentSession();
         attachment = session.get(Attachment.class, attachment.getId());
         Blob blob = attachment.getBlob();
-        Resource resource;
         byte[] bytes;
         try {
             bytes = blob.getBytes(0, (int) blob.length());
-//            resource = new InputStreamResource(blob.getBinaryStream());
         } catch (SQLException e) {
             throw new FileLoadingException(e.getMessage());
         }
         return bytes;
+    }
+
+    @Override
+    public Attachment removeAttachment(Long id) {
+        Session session = sessionFactory.getCurrentSession();
+        Attachment attachment = session.get(Attachment.class, id);
+        session.delete(attachment);
+        return attachment;
+    }
+
+    @Override
+    public Attachment updateAttachment(Attachment attachment) {
+        Session session = sessionFactory.getCurrentSession();
+        session.saveOrUpdate(attachment);
+        return attachment;
     }
 }

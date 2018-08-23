@@ -5,6 +5,7 @@ import com.epam.entity.Ticket;
 import com.epam.entity.User;
 import com.epam.enums.State;
 import com.epam.enums.UserRole;
+import com.epam.exception.ImpermissibleActionException;
 import com.epam.exception.TicketNotFoundException;
 import com.epam.repository.TicketRepository;
 import com.epam.service.CategoryService;
@@ -75,5 +76,29 @@ public class TicketServiceImpl implements TicketService {
         }
 
         return ticketRepository.addTicket(ticket);
+    }
+
+    @Override
+    public Ticket updateTicket(Ticket ticket) {
+        Ticket oldTicket = getTicketById(ticket.getId());
+
+        if (oldTicket.getState() != State.DRAFT) {
+            throw new ImpermissibleActionException(
+                "It's only allow to update tickets in a draft state");
+        }
+
+        Category category = ticket.getCategory();
+        if (category != null) {
+            category = categoryService.getCategoryById(category.getId());
+        }
+
+        oldTicket.setName(ticket.getName());
+        oldTicket.setDescription(ticket.getDescription());
+        oldTicket.setDesiredResolutionDate(ticket.getDesiredResolutionDate());
+        oldTicket.setState(ticket.getState());
+        oldTicket.setCategory(category);
+        oldTicket.setUrgency(ticket.getUrgency());
+
+        return ticketRepository.updateTicket(oldTicket);
     }
 }

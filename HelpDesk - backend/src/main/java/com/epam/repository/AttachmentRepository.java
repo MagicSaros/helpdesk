@@ -13,4 +13,8 @@ public interface AttachmentRepository {
     byte[] getFileAsResource(Attachment attachment);
 
     List<Attachment> getAttachmentsByTicketId(Long id);
+
+    Attachment removeAttachment(Long id);
+
+    Attachment updateAttachment(Attachment attachment);
 }

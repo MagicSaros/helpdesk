@@ -28,4 +28,6 @@ public interface TicketRepository {
     List<Ticket> getTicketsByState(State state);
 
     Ticket addTicket(Ticket ticket);
+
+    Ticket updateTicket(Ticket ticket);
 }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,7 +50,8 @@ public class TicketController {
     }
 
     @GetMapping("/{ticketId}")
-    public ResponseEntity<TicketDto> getTicket(@PathVariable Long userId, @PathVariable Long ticketId) {
+    public ResponseEntity<TicketDto> getTicket(@PathVariable Long userId,
+        @PathVariable Long ticketId) {
         Ticket ticket = ticketService.getTicketById(ticketId);
         TicketDto ticketDto = ticketDtoConverter.fromEntityToDto(ticket);
         return new ResponseEntity<>(ticketDto, HttpStatus.OK);
@@ -68,5 +70,14 @@ public class TicketController {
         ticketDto = ticketDtoConverter.fromEntityToDto(ticket);
 
         return new ResponseEntity<>(ticketDto, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{ticketId}")
+    public ResponseEntity<TicketDto> editTicket(@PathVariable Long userId,
+        @PathVariable Long ticketId, @Valid @RequestBody TicketDto ticketDto) {
+        Ticket ticket = ticketDtoConverter.fromDtoToEntity(ticketDto);
+        ticket = ticketService.updateTicket(ticket);
+        ticketDto = ticketDtoConverter.fromEntityToDto(ticket);
+        return new ResponseEntity<>(ticketDto, HttpStatus.OK);
     }
 }
