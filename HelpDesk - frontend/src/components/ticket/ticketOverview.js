@@ -25,8 +25,9 @@ const showButtonName = {
 class TicketOverview extends Component {
     constructor(props) {
         super(props);
+        this.ticketId = 0;
         this.state = {
-            ticket: this.props.location.state,
+            ticket: null,
             attachments: [],
             history: [],
             comments: [],
@@ -63,7 +64,7 @@ class TicketOverview extends Component {
                             <div className="col-sm-2">
                                 <button className="btn btn-success btn-custom" onClick={() => this.showTicketsList()}>Ticket List</button>
                             </div>
-                            <div className="col-sm-5">
+                            <div className="col-sm-10 text-left">
                                 <h3>{`Ticket (${id}) - ${name}`}</h3>
                             </div>
                         </div>
@@ -172,9 +173,10 @@ class TicketOverview extends Component {
     }
 
     componentDidMount() {
-        this.loadAttachments();
-        this.loadHistory();
-        this.loadComments();
+        this.ticketId = this.props.location.state ? this.props.location.state.ticketId : null;
+        if (this.ticketId) {
+            this.loadTicket();
+        }
     }
 
     loadTicket() {
@@ -182,7 +184,7 @@ class TicketOverview extends Component {
         let authToken = this.getAuthToken();
 
         let userId = user ? user.id : 0;
-        let ticketId = this.state.ticket.id ? this.state.ticket.id : 0;
+        let ticketId = this.ticketId;
         
         let url = this.props.baseUrl + `/users/${userId}/tickets/${ticketId}`;
         let config = {
@@ -197,10 +199,16 @@ class TicketOverview extends Component {
             .then(response => {
                 if (response.status === 200) {
                     console.log(response);
-                    this.setState({ ticket: response.data });
+                    this.setState({ ticket: response.data }, () => this.loadTicketDetails());
                 }
             })
             .catch(error => this.handleRequestError(error));
+    }
+
+    loadTicketDetails() {
+        this.loadAttachments();
+        this.loadHistory();
+        this.loadComments();
     }
 
     loadAttachments() {
@@ -351,6 +359,10 @@ class TicketOverview extends Component {
     }
 
     addComment() {
+        if (!this.state.ticket) {
+            return;
+        }
+
         let user = this.getCurrentUser();
         let authToken = this.getAuthToken();
         let userId = user ? user.id : 0;
@@ -392,10 +404,16 @@ class TicketOverview extends Component {
     }
 
     showTicketEdition() {
-        console.log('It is not implemented yet');
+        if (!this.state.ticket) {
+            return;
+        }
+        this.props.history.push('/edit', { ticketId: this.state.ticket.id });
     }
 
     showFeedBack() {
+        if (!this.state.ticket) {
+            return;
+        }
         console.log('It is not implemented yet');
     }
 

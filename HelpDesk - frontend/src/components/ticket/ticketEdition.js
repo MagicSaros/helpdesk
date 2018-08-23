@@ -12,10 +12,18 @@ const FILE_SIZE_ERROR_MESSAGE = 'The size of attached file should not be greater
 const FILE_NAME_REGEX = /^([a-zA-Z0-9\s_\\.\-():])+(.pdf|.doc|.docx|.png|.jpeg|.jpg)$/i;
 const DATE_FORMAT_REGEX = /^(0[1-9]|[12][0-9]|3[01])[/](0[1-9]|1[012])[/]\d{4}$/;
 
-class TicketCreation extends Component {
+const displayClass = {
+    active: '',
+    inactive: 'd-none'
+};
+
+class TicketEdition extends Component {
     constructor(props) {
         super(props);
+        this.ticketId = 0;
         this.state = {
+            ticket: null,
+            id: '',
             categories: [],
             categoryId: '',
             name: '',
@@ -23,24 +31,28 @@ class TicketCreation extends Component {
             urgency: '',
             desiredDate: '',
             comment: '',
+            attachments: [],
             isDateValid: true,
             isRequiredEmpty: false,
             file: null,
             isFileValid: true,
             isFileSelected: false,
-            fileMessage: ''
+			fileErrorMessage: '',
+			isAttachmentUpdated: false
         }
     }
 
     render() {
+		let file = this.state.file ? this.state.file : { name: '' };
+
         return(
             <div className="container">
                 <div className="row my-4">
                     <div className="col-sm-1">
-                        <button className="btn btn-success btn-custom" onClick={() => this.showTicketsList()}>Ticket List</button>
+                        <button className="btn btn-success btn-custom" onClick={() => this.showTicketOverview()}>Ticket Overview</button>
                     </div>
                     <div className="offset-sm-1 col-sm-3">
-                        <h4>Create new Ticket</h4>
+                        <h4>Edit Ticket ({this.state.id})</h4>
                     </div>
                 </div>
                 <form className="justify-content-center">
@@ -49,7 +61,7 @@ class TicketCreation extends Component {
                             Category <span className="text-danger">*</span>
                         </label>
                         <div className="col-sm-4">
-                            <select className={`custom-select ${this.toggleErrorClass(!this.state.isRequiredEmpty)}`} name="categoryId" onChange={event => this.updateField(event)}>
+                            <select className={`custom-select ${this.toggleErrorClass(!this.state.isRequiredEmpty)}`} name="categoryId" value={this.state.categoryId} onChange={event => this.updateField(event)}>
                                 <option defaultValue></option>
                                 {this.state.categories.map(category => {
                                     return(<option key={category.id} value={category.id}>{category.name}</option>);
@@ -112,22 +124,31 @@ class TicketCreation extends Component {
                             />
                         </div>
                     </div>
-                    <div className="form-group row my-4">
+                    <div className="form-group row mt-4">
                         <label className="col-sm-4">Add attachments</label>
                         <div className="col-sm-2">
                             <label htmlFor="attachment" className="btn btn-light btn-block btn-custom">Browse</label>
                             <input type="file" role="button" className="custom-file-input" id="attachment" onChange={event => this.selectFile(event)}/>
                         </div>
                         <div className="col-sm-4 text-left">
-                            <div className={this.toggleFileMessageClass()}>
-                                <button type="button" className="close text-left" aria-label="Close" onClick={() => this.removeFile()}>
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                                <small className="form-text text-muted">
-                                    {this.state.fileMessage}
-                                </small>
-                            </div>
+							<div className="row">
+								<div className="col-sm-10">
+									<a href="" className="badge badge-light" onClick={event => {event.preventDefault()}}>{file.name}</a>
+								</div>
+								<div className={`col-sm-2 ${this.toggleFileRemoveButtonClass()}`}>
+									<button type="button" className="close text-left" aria-label="Close" onClick={() => this.removeFile()}>
+										<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+							</div>
                         </div>
+                    </div>
+                    <div className="form-group row">
+						<div className={`offset-sm-4 col-sm-6 `}>
+							<small className="form-text text-muted">
+								{this.state.fileErrorMessage}
+							</small>
+						</div>
                     </div>
                     <div className="form-group row my-4">
                         <label htmlFor="comment" className="col-sm-4">Comment</label>
@@ -156,7 +177,39 @@ class TicketCreation extends Component {
     }
 
     componentDidMount() {
-        this.loadCategories();
+        this.ticketId = this.props.location.state ? this.props.location.state.ticketId : null;
+        if (this.ticketId) {
+            this.loadTicket();
+        }
+		this.loadCategories();
+    }
+
+    loadTicket() {
+        let user = this.getCurrentUser();
+        let authToken = this.getAuthToken();
+
+        let userId = user ? user.id : 0;
+        let ticketId = this.ticketId;
+        
+        let url = this.props.baseUrl + `/users/${userId}/tickets/${ticketId}`;
+        let config = {
+            headers: {
+                [authToken.header]: authToken.string,
+                'Accept': 'application/json'
+            }
+        };
+
+        axios
+            .get(url, config)
+            .then(response => {
+                if (response.status === 200) {
+                    console.log(response);
+                    this.setState({ ticket: response.data }, () => this.fillFields());
+                }
+                return response;
+            })
+            .then(response => this.loadAttachments())
+            .catch(error => this.handleRequestError(error));
     }
 
     loadCategories() {
@@ -186,8 +239,60 @@ class TicketCreation extends Component {
             .catch(error => this.handleRequestError(error));
     }
 
-    showTicketsList() {
-        this.props.history.push('/tickets');
+    loadAttachments() {
+        let user = this.getCurrentUser();
+        let authToken = this.getAuthToken();
+
+        let userId = user ? user.id : 0;
+        let ticketId = this.ticketId;
+        
+        let url = this.props.baseUrl + `/users/${userId}/tickets/${ticketId}/attachments`;
+        let config = {
+            headers: {
+                [authToken.header]: authToken.string,
+                'Accept': 'application/json'
+            }
+        };
+
+        let attachments = [];
+
+        axios
+            .get(url, config)
+            .then(response => {
+                if (response.status === 200) {
+                    console.log(response);
+					response.data.map(attachment => attachments.push(attachment));
+					let file = attachments.length !== 0 ? { name: attachments[0].name } : null;
+					let isSelected = file ? true : false;
+                    this.setState({
+						file: file,
+						attachments: attachments,
+						isFileSelected: isSelected
+					});
+                }
+            })
+            .catch(error => this.handleRequestError(error));
+    }
+
+    fillFields() {
+        let ticket = this.state.ticket;
+        let category = ticket.category ? ticket.category : '';
+        let name = ticket.name ? ticket.name : '';
+        let description = ticket.description ? ticket.description : '';
+        let urgency = ticket.urgency ? ticket.urgency : '';
+        let date = ticket.desiredResolutionDate ? Util.toShortDateFormat(ticket.desiredResolutionDate) : '';
+        this.setState({
+            id: this.ticketId,
+            categoryId: category.id,
+            name: name,
+            description: description,
+            urgency: urgency,
+            desiredDate: date,
+        });
+    }
+
+    showTicketOverview() {
+        this.props.history.push('/overview', { ticketId: this.ticketId });
     }
 
     updateField(event) {
@@ -236,44 +341,72 @@ class TicketCreation extends Component {
     }
 
     toggleFileMessageClass() {
-        return this.state.isFileSelected ? 'd-block' : 'd-none';
-    }
+        return !this.state.isFileValid ? displayClass.active : displayClass.inactive;
+	}
+	
+	toggleFileRemoveButtonClass() {
+		return this.state.isFileSelected ? displayClass.active : displayClass.inactive;
+	}
 
     selectFile(event) {
-        let file = event.target.files[0];
+		let file = event.target.files[0];
+
+		if (!file) {
+			return;
+		}
+
+		this.removeFile();
+
+		let isUpdated = this.state.isAttachmentUpdated;
+		if (this.state.attachments.length !== 0) {
+			isUpdated = true;
+		}
+
         this.setState(
-            { file: file },
-            () => this.validateFile(file));
+            {
+				file: file,
+				isAttachmentUpdated: isUpdated
+			}, () => this.validateFile());
     }
 
-    validateFile(file) {
+    validateFile() {
+        let file = this.state.file;
         if (file == null) {
-            this.setState({ isFileSelected: false });
+            this.setState({
+				isFileSelected: false,
+				isFileValid: true
+			});
             return;
-        }
+		}
+		
+		let re = FILE_NAME_REGEX;
+		let name = file.name;
+		let size = file.size;
 
-        let name = file.name;
-        let size = file.size;
-        let re = FILE_NAME_REGEX;
-
-        let isNameValid = name.match(re) ? true : false;
-        let isSizeValid = 0 < size && size <= FILE_MAX_SIZE;
-        let isFileValid = isNameValid && isSizeValid;
-        let fileMessage = isNameValid ? (isSizeValid ? name : FILE_SIZE_ERROR_MESSAGE ) : FILE_NAME_ERROR_MESSAGE;
+		let isNameValid = name.match(re) ? true : false;
+		let isSizeValid = 0 < size && size <= FILE_MAX_SIZE;
+		let isFileValid = isNameValid && isSizeValid;
+		let	errorMessage = isNameValid ? (isSizeValid ? '' : FILE_SIZE_ERROR_MESSAGE ) : FILE_NAME_ERROR_MESSAGE;
 
         this.setState({
-            fileMessage: fileMessage,
+            fileErrorMessage: errorMessage,
             isFileValid: isFileValid,
             isFileSelected: true
-        });
+		});
     }
 
     removeFile() {
+		let isUpdated = this.state.isAttachmentUpdated;
+		if (this.state.attachments.length !== 0) {
+			isUpdated = true;
+		}
+
         this.setState({
-            file: null,
-            fileMessage: '',
-            isFileValid: true,
-            isFileSelected: false
+			file: null,
+			fileErrorMessage: '',
+			isFileSelected: false,
+			isFileValid: true,
+			isAttachmentUpdated: isUpdated
         });
     }
 
@@ -289,17 +422,27 @@ class TicketCreation extends Component {
     saveAsDraft(event) {
         event.preventDefault();
 
-        let isSelectedFileValid = !this.state.isFileSelected || this.state.isFileValid;
+        let ticket = this.state.ticket;
+        if (!ticket) {
+            return;
+        }
+
+        let isSelectedFilesValid = !this.state.isFileSelected || this.state.isFileValid;
         
-        if (!isSelectedFileValid) {
+        if (!isSelectedFilesValid) {
             return;
         }
 
         let user = this.getCurrentUser();
         let userId = user ? user.id : 0;
         let authToken = this.getAuthToken();
+        let ticketId = ticket.id;
 
-        let url = this.props.baseUrl + `/users/${userId}/tickets`;
+        if(!(+ticketId)) {
+            return;
+        }
+
+        let url = this.props.baseUrl + `/users/${userId}/tickets/${ticketId}`;
         let config = {
             headers: {
                 [authToken.header]: authToken.string,
@@ -311,14 +454,15 @@ class TicketCreation extends Component {
         let name = this.state.name.toLowerCase();
 
         let payload = {
+            "id": ticketId,
             "name": name,
+            "description": this.state.description,
             "state": "DRAFT"
         };
 
-        if (this.state.description) payload["description"] = this.state.description;
         if (this.state.desiredDate) payload["desiredResolutionDate"] = Util.parseDate(this.state.desiredDate);
-        if (this.state.urgency) payload["urgency"] = this.state.urgency;
         if (this.state.categoryId) payload["category"] = { "id": this.state.categoryId };
+        if (this.state.urgency) payload["urgency"] = this.state.urgency;
 
         this.sendTicket(url, payload, config);
     }
@@ -326,21 +470,31 @@ class TicketCreation extends Component {
     submit(event) {
         event.preventDefault();
 
-        let isRequiredEmpty = this.checkIfRequiredIsEmpty(this.state.categoryId)
+        let ticket = this.state.ticket;
+        if (!ticket) {
+            return;
+        }
+
+        let isRequiredEmpty = this.checkIfRequiredIsEmpty(this.state.categoryId + '')
             || this.checkIfRequiredIsEmpty(this.state.name)
             || this.checkIfRequiredIsEmpty(this.state.urgency);
 
-        let isSelectedFileValid = !this.state.isFileSelected || this.state.isFileValid;
+        let isSelectedFilesValid = !this.state.isFileSelected || this.state.isFileValid;
 
-        if (isRequiredEmpty || !isSelectedFileValid) {
+        if (isRequiredEmpty || !isSelectedFilesValid) {
             return;
         }
 
         let user = this.getCurrentUser();
         let userId = user ? user.id : 0;
         let authToken = this.getAuthToken();
+        let ticketId = ticket.id;
 
-        let url = this.props.baseUrl + `/users/${userId}/tickets`;
+        if(!(+ticketId)) {
+            return;
+        }
+
+        let url = this.props.baseUrl + `/users/${userId}/tickets/${ticketId}`;
         let config = {
             headers: {
                 [authToken.header]: authToken.string,
@@ -352,15 +506,14 @@ class TicketCreation extends Component {
         let name = this.state.name.toLowerCase();
         
         let payload = {
-            "category": {
-                "id": this.state.categoryId
-            },
+            "id": ticketId,
             "name": name,
+            "description": this.state.description,
+            "state": "NEW",
+            "category": { "id": this.state.categoryId },
             "urgency": this.state.urgency,
-            "state": "NEW"
         };
-        
-        if (this.state.description) payload["description"] = this.state.description;
+
         if (this.state.desiredDate) payload["desiredResolutionDate"] = Util.parseDate(this.state.desiredDate);
 
         this.sendTicket(url, payload, config);
@@ -372,36 +525,64 @@ class TicketCreation extends Component {
         console.log(payload);
 
         axios
-            .post(url, payload, config)
+            .put(url, payload, config)
             .then(response => {
-                if (response.status === 201) {
+                if (response.status === 200) {
                     console.log(response);
                     return response;
                 }
             })
             .then(response => {
                 if (this.state.comment) {
-                    let ticketId = response.data.id;
-                    let urlComment = url + `/${ticketId}/comments`;
+                    let urlComment = url + `/comments`;
                     let payload = {
                         "text": this.state.comment
                     };
     
                     this.sendComment(urlComment, payload, config);
-                }
-                if (this.state.file) {
-                    let ticketId = response.data.id;
-                    let urlAttachment = url + `/${ticketId}/attachments`;
+				}
+                if (this.state.isAttachmentUpdated && this.state.file != null) {
+					let attachmentId = this.state.attachments[0].id;
+					let urlAttachment = url + `/attachments/${attachmentId}`;
+					
+					this.deleteAttachment(urlAttachment, config);
 
-                    let formData = new FormData();
-                    formData.append('file', this.state.file);
-                    config.headers['Content-Type'] = 'multipart/form-data';
+					urlAttachment = url + `/attachments`;
+			
+					let file = this.state.file;
+					let formData = new FormData();
+					formData.append('file', file);
 
-                    this.sendAttachment(urlAttachment, formData, config);
-                }
+					config.headers['Content-Type'] = 'multipart/form-data';
+
+					this.sendAttachment(urlAttachment, formData, config);
+
+					// let file = this.state.file;
+					// let formData = new FormData();
+					// formData.append('file', file);
+
+					// config.headers['Content-Type'] = 'multipart/form-data';
+
+					// this.updateAttachment(urlAttachment, formData, config);
+                } else if (this.state.isAttachmentUpdated && this.state.file == null) {
+					let attachmentId = this.state.attachments[0].id;
+					let urlAttachment = url + `/attachments/${attachmentId}`;
+
+					this.deleteAttachment(urlAttachment, config);
+				} else if (!this.state.isAttachmentUpdated && this.state.file != null) {
+					let urlAttachment = url + `/attachments`;
+					
+					let file = this.state.file;
+					let formData = new FormData();
+					formData.append('file', file);
+
+					config.headers['Content-Type'] = 'multipart/form-data';
+
+					this.sendAttachment(urlAttachment, formData, config);
+				}
                 return;
             })
-            .then(() => this.showTicketsList())
+            .then(() => this.showTicketOverview())
             .catch(error => this.handleRequestError(error));
             
     }
@@ -419,26 +600,55 @@ class TicketCreation extends Component {
                 }
             })
             .catch(error => this.handleRequestError(error));
-    }
-
+	}
+	
     sendAttachment(url, payload, config) {
-        console.log('--- Uploading file ---');
+		console.log('--- Uploading file ---');
         console.log('Url: ' + url);
         console.log('File name: ' + payload.get('file').name);
-
+		
         axios
-            .post(url, payload, config)
-            .then(response => {
-                if (response.status === 201) {
-                    console.log(response);
-                }
-            })
-            .catch(error => this.handleRequestError(error));
-    }
+			.post(url, payload, config)
+			.then(response => {
+				if (response.status === 201) {
+					console.log(response);
+				}
+			})
+			.catch(error => this.handleRequestError(error));
+	}
 
+    updateAttachment(url, payload, config) {
+		console.log('--- Uploading file ---');
+        console.log('Url: ' + url);
+        console.log('File name: ' + payload.get('file').name);
+		
+        axios
+			.put(url, payload, config)
+			.then(response => {
+				if (response.status === 200) {
+					console.log(response);
+				}
+			})
+			.catch(error => this.handleRequestError(error));
+	}
+	
+	deleteAttachment(url, config) {
+		console.log('--- Deleting file from server ---');
+		console.log('Url: ' + url);
+
+		axios
+			.delete(url, config)
+			.then(response => {
+				if (response.status === 200) {
+					console.log(response);
+				}
+			})
+			.catch(error => this.handleRequestError(error));
+	}
+	
     handleRequestError(error) {
-        if (error.response) {
-            console.log(error.response.data)
+		if (error.response) {
+			console.log(error.response.data)
         } else if (error.request) {
             console.log(error.request);
         } else {
@@ -447,4 +657,4 @@ class TicketCreation extends Component {
     }
 }
 
-export default TicketCreation;
+export default TicketEdition;

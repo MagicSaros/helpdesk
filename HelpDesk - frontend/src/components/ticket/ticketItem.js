@@ -54,7 +54,7 @@ class TicketItem extends Component {
 
     showTicketOverview(event) {
         event.preventDefault();
-        this.props.history.push('/overview', this.props.ticket);
+        this.props.history.push('/overview', { ticketId: this.props.ticket.id });
     }
 }
 
