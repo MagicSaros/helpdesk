@@ -173,16 +173,16 @@ class TicketList extends Component {
 
     filterTicketsByCurrentUser(tickets) {
         let user = this.getCurrentUser();
-        let userId = +user.id;
-        let role = user.role;
+        let userId = user ? +user.id : 0;
+        let role = user ? user.role : '';
         switch (role) {
             case this.userRole.MANAGER:
                 return tickets.filter(ticket => ticket.owner.id === userId
-                    || (ticket.approver.id === userId && ticket.state === 'APPROVED'));
+                    || ((ticket.approver ? ticket.approver.id === userId : false) && ticket.state === 'APPROVED'));
             case this.userRole.EMPLOYEE:
                 return tickets.filter(ticket => ticket.owner.id === userId);
             case this.userRole.ENGINEER:
-                return tickets.filter(ticket => ticket.assignee.id === userId);
+                return tickets.filter(ticket => ticket.assignee ? ticket.assignee.id === userId : false);
             default:
                 return tickets;
         }
