@@ -1,0 +1,85 @@
+package com.epam.service.implementation;
+
+import com.epam.component.StateTransitionManager;
+import com.epam.entity.Ticket;
+import com.epam.entity.User;
+import com.epam.enums.State;
+import com.epam.enums.TicketAction;
+import com.epam.enums.UserRole;
+import com.epam.exception.ImpermissibleActionException;
+import com.epam.service.StateTransitionService;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class StateTransitionServiceImpl implements StateTransitionService {
+
+    @Autowired
+    private StateTransitionManager transitionManager;
+
+    @Override
+    public Collection<TicketAction> getAllowedActions(Ticket ticket, User user) {
+        State currentState = ticket.getState();
+        UserRole role = user.getRole();
+
+        return transitionManager.getAllowedActions(currentState, role);
+    }
+
+    @Override
+    public void transitTicketState(Ticket ticket, User user, State newState) {
+        State currentState = ticket.getState();
+        UserRole role = user.getRole();
+
+        if (!isTransitionAllowed(currentState, newState, role)) {
+            throw new ImpermissibleActionException("State transition is not allowed");
+        }
+
+        assigneeUserToStateTransition(ticket, user, newState);
+        ticket.setState(newState);
+    }
+
+    private boolean isTransitionAllowed(State currentState, State newState, UserRole role) {
+        return transitionManager.isActionExist(currentState, newState, role);
+    }
+
+    private void assigneeUserToStateTransition(Ticket ticket, User user, State newState) {
+        State currentState = ticket.getState();
+        UserRole role = user.getRole();
+        TicketAction action = defineTicketAction(currentState, newState, role);
+
+        try {
+            Method method = getMethodForUserSetting(currentState, action);
+            if (method != null) {
+                method.invoke(ticket, user);
+            }
+        } catch (Exception e) {
+            throw new ImpermissibleActionException("Impossible to update ticket with user");
+        }
+    }
+
+    private TicketAction defineTicketAction(State currentState, State newState, UserRole role) {
+        return transitionManager.getAction(currentState, newState, role);
+    }
+
+    private Method getMethodForUserSetting(State currentState, TicketAction action) throws NoSuchMethodException {
+        Method method = null;
+        switch (currentState) {
+            case NEW:
+                method = Ticket.class.getMethod("setApprover", User.class);
+                break;
+            case APPROVED:
+                if (action == TicketAction.ASSIGN) {
+                    method = Ticket.class.getMethod("setAssignee", User.class);
+                }
+                break;
+            case DRAFT:
+                method = Ticket.class.getMethod("setOwner", User.class);
+                break;
+            default:
+                break;
+        }
+        return method;
+    }
+}

@@ -1,7 +1,12 @@
 package com.epam.configuration;
 
+import com.epam.component.StateTransitionManager;
+import com.epam.enums.State;
+import com.epam.enums.TicketAction;
+import com.epam.enums.UserRole;
 import com.epam.security.AuthenticationEntryPointImpl;
 import com.epam.security.AuthenticationTokenProvider;
+import com.epam.component.implementation.StateTransitionManagerImpl;
 import javax.sql.DataSource;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,5 +96,34 @@ public class BeanConfig {
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
         multipartResolver.setMaxUploadSize(FILE_MAX_SIZE);
         return multipartResolver;
+    }
+
+    @Bean
+    public StateTransitionManager stateTransitionManager() {
+        return new StateTransitionManagerImpl.Builder()
+            .addStateTransition(State.DRAFT, TicketAction.CREATE, State.DRAFT)
+            .addPermission(UserRole.EMPLOYEE, UserRole.MANAGER)
+            .addStateTransition(State.DRAFT, TicketAction.SUBMIT, State.NEW)
+            .addPermission(UserRole.EMPLOYEE, UserRole.MANAGER)
+            .addStateTransition(State.DRAFT, TicketAction.CANCEL, State.CANCELLED)
+            .addPermission(UserRole.EMPLOYEE, UserRole.MANAGER)
+            .addStateTransition(State.NEW, TicketAction.APPROVE, State.APPROVED)
+            .addPermission(UserRole.MANAGER)
+            .addStateTransition(State.NEW, TicketAction.DECLINE, State.DECLINED)
+            .addPermission(UserRole.MANAGER)
+            .addStateTransition(State.NEW, TicketAction.CANCEL, State.CANCELLED)
+            .addPermission(UserRole.MANAGER)
+            .addStateTransition(State.APPROVED, TicketAction.ASSIGN, State.IN_PROGRESS)
+            .addPermission(UserRole.ENGINEER)
+            .addStateTransition(State.APPROVED, TicketAction.CANCEL,
+                State.CANCELLED)
+            .addPermission(UserRole.ENGINEER)
+            .addStateTransition(State.DECLINED, TicketAction.SUBMIT, State.NEW)
+            .addPermission(UserRole.EMPLOYEE, UserRole.MANAGER)
+            .addStateTransition(State.DECLINED, TicketAction.CANCEL, State.CANCELLED)
+            .addPermission(UserRole.EMPLOYEE, UserRole.MANAGER)
+            .addStateTransition(State.IN_PROGRESS, TicketAction.DONE, State.DONE)
+            .addPermission(UserRole.ENGINEER)
+            .build();
     }
 }

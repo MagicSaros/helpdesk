@@ -5,10 +5,10 @@ import com.epam.entity.Ticket;
 import com.epam.entity.User;
 import com.epam.enums.State;
 import com.epam.enums.UserRole;
-import com.epam.exception.ImpermissibleActionException;
 import com.epam.exception.TicketNotFoundException;
 import com.epam.repository.TicketRepository;
 import com.epam.service.CategoryService;
+import com.epam.service.StateTransitionService;
 import com.epam.service.TicketService;
 import com.epam.service.UserService;
 import java.util.LinkedList;
@@ -30,6 +30,9 @@ public class TicketServiceImpl implements TicketService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private StateTransitionService stateTransitionService;
 
     @Override
     public Ticket getTicketById(Long id) {
@@ -79,13 +82,11 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public Ticket updateTicket(Ticket ticket) {
+    public Ticket updateTicket(Ticket ticket, User user) {
         Ticket oldTicket = getTicketById(ticket.getId());
 
-        if (oldTicket.getState() != State.DRAFT) {
-            throw new ImpermissibleActionException(
-                "It's only allow to update tickets in a draft state");
-        }
+        State newState = ticket.getState();
+        stateTransitionService.transitTicketState(oldTicket, user, newState);
 
         Category category = ticket.getCategory();
         if (category != null) {
@@ -95,7 +96,6 @@ public class TicketServiceImpl implements TicketService {
         oldTicket.setName(ticket.getName());
         oldTicket.setDescription(ticket.getDescription());
         oldTicket.setDesiredResolutionDate(ticket.getDesiredResolutionDate());
-        oldTicket.setState(ticket.getState());
         oldTicket.setCategory(category);
         oldTicket.setUrgency(ticket.getUrgency());
 

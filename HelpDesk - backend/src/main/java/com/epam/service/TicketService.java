@@ -16,5 +16,5 @@ public interface TicketService {
 
     Ticket addTicket(Ticket ticket);
 
-    Ticket updateTicket(Ticket ticket);
+    Ticket updateTicket(Ticket ticket, User user);
 }
