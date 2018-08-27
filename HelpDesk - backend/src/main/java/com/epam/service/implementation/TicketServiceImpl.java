@@ -1,6 +1,7 @@
 package com.epam.service.implementation;
 
 import com.epam.entity.Category;
+import com.epam.entity.History;
 import com.epam.entity.Ticket;
 import com.epam.entity.User;
 import com.epam.enums.State;
@@ -8,9 +9,11 @@ import com.epam.enums.UserRole;
 import com.epam.exception.TicketNotFoundException;
 import com.epam.repository.TicketRepository;
 import com.epam.service.CategoryService;
+import com.epam.service.HistoryService;
 import com.epam.service.StateTransitionService;
 import com.epam.service.TicketService;
 import com.epam.service.UserService;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,6 +36,9 @@ public class TicketServiceImpl implements TicketService {
 
     @Autowired
     private StateTransitionService stateTransitionService;
+
+    @Autowired
+    private HistoryService historyService;
 
     @Override
     public Ticket getTicketById(Long id) {
@@ -67,9 +73,11 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public Ticket addTicket(Ticket ticket) {
+    public Ticket addTicket(Ticket ticket, User user) {
+        ticket.setOwner(user);
         ticket.setAssignee(null);
         ticket.setApprover(null);
+        ticket.setCreatedOn(new Date());
 
         Category category = ticket.getCategory();
         if (category != null) {
@@ -77,6 +85,14 @@ public class TicketServiceImpl implements TicketService {
             category = categoryService.getCategoryById(categoryId);
             ticket.setCategory(category);
         }
+
+        History history = new History.Builder()
+            .setUser(user)
+            .setTicket(ticket)
+            .setAction("Ticket is created")
+            .setDescription("Ticket is created")
+            .build();
+        historyService.addHistory(history);
 
         return ticketRepository.addTicket(ticket);
     }
@@ -98,6 +114,16 @@ public class TicketServiceImpl implements TicketService {
         oldTicket.setDesiredResolutionDate(ticket.getDesiredResolutionDate());
         oldTicket.setCategory(category);
         oldTicket.setUrgency(ticket.getUrgency());
+
+        if (ticket.getState() == State.DRAFT) {
+            History history = new History.Builder()
+                .setUser(user)
+                .setTicket(oldTicket)
+                .setAction("Ticket is edited")
+                .setDescription("Ticket is edited")
+                .build();
+            historyService.addHistory(history);
+        }
 
         return ticketRepository.updateTicket(oldTicket);
     }

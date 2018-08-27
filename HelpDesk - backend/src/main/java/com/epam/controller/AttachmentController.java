@@ -4,8 +4,10 @@ import com.epam.converter.implementation.AttachmentDtoConverter;
 import com.epam.dto.AttachmentDto;
 import com.epam.entity.Attachment;
 import com.epam.entity.Ticket;
+import com.epam.entity.User;
 import com.epam.service.AttachmentService;
 import com.epam.service.TicketService;
+import com.epam.service.UserService;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +34,9 @@ public class AttachmentController {
 
     @Autowired
     private TicketService ticketService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private AttachmentDtoConverter attachmentDtoConverter;
@@ -74,32 +78,20 @@ public class AttachmentController {
     public ResponseEntity<AttachmentDto> createAttachment(@PathVariable Long userId,
         @PathVariable Long ticketId, @RequestParam("file") MultipartFile multipartFile) {
         Ticket ticket = ticketService.getTicketById(ticketId);
+        User user = userService.getUserById(userId);
 
-        Attachment attachment = new Attachment.Builder()
-            .setTicket(ticket)
-            .build();
-        attachmentService.setFileAsBlob(attachment, multipartFile);
-
-        attachment = attachmentService.addAttachment(attachment);
+        Attachment attachment = attachmentService.addAttachment(ticket, user, multipartFile);
         AttachmentDto attachmentDto = attachmentDtoConverter.fromEntityToDto(attachment);
         return new ResponseEntity<>(attachmentDto, HttpStatus.CREATED);
-    }
-
-    @PutMapping("/{attachmentId}")
-    public ResponseEntity<AttachmentDto> updateFile(@PathVariable Long userId,
-        @PathVariable Long ticketId, @PathVariable Long attachmentId,
-        @RequestParam("file") MultipartFile multipartFile) {
-        Attachment attachment = attachmentService.getAttachmentById(attachmentId);
-        attachmentService.setFileAsBlob(attachment, multipartFile);
-        attachmentService.updateAttachment(attachment);
-        AttachmentDto attachmentDto = attachmentDtoConverter.fromEntityToDto(attachment);
-        return new ResponseEntity<>(attachmentDto, HttpStatus.OK);
     }
 
     @DeleteMapping("/{attachmentId}")
     public ResponseEntity<AttachmentDto> deleteAttachment(@PathVariable Long userId,
         @PathVariable Long ticketId, @PathVariable Long attachmentId) {
-        Attachment attachment = attachmentService.removeAttachment(attachmentId);
+        Ticket ticket = ticketService.getTicketById(ticketId);
+        User user = userService.getUserById(userId);
+        Attachment attachment = attachmentService.getAttachmentById(attachmentId);
+        attachment = attachmentService.removeAttachment(ticket, user, attachment);
         AttachmentDto attachmentDto = attachmentDtoConverter.fromEntityToDto(attachment);
         return new ResponseEntity<>(attachmentDto, HttpStatus.OK);
     }

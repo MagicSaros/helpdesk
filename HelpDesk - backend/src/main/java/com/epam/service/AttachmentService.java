@@ -1,6 +1,8 @@
 package com.epam.service;
 
 import com.epam.entity.Attachment;
+import com.epam.entity.Ticket;
+import com.epam.entity.User;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -8,7 +10,7 @@ public interface AttachmentService {
 
     Attachment getAttachmentById(Long id);
 
-    Attachment addAttachment(Attachment attachment);
+    Attachment addAttachment(Ticket ticket, User user, MultipartFile multipartFile);
 
     List<Attachment> getAttachmentsByTicketId(Long id);
 
@@ -16,7 +18,5 @@ public interface AttachmentService {
 
     byte[] getFileAsResource(Attachment attachment);
 
-    Attachment removeAttachment(Long id);
-
-    Attachment updateAttachment(Attachment attachment);
+    Attachment removeAttachment(Ticket ticket, User user, Attachment attachment);
 }

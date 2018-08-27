@@ -1,10 +1,14 @@
 package com.epam.service.implementation;
 
 import com.epam.entity.Attachment;
+import com.epam.entity.History;
+import com.epam.entity.Ticket;
+import com.epam.entity.User;
 import com.epam.exception.AttachmentNotFoundException;
 import com.epam.exception.FileLoadingException;
 import com.epam.repository.AttachmentRepository;
 import com.epam.service.AttachmentService;
+import com.epam.service.HistoryService;
 import java.sql.Blob;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +25,9 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Autowired
     private AttachmentRepository attachmentRepository;
 
+    @Autowired
+    private HistoryService historyService;
+
     @Override
     public Attachment getAttachmentById(Long id) {
         Optional<Attachment> attachment = attachmentRepository.getAttachmentById(id);
@@ -29,7 +36,20 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public Attachment addAttachment(Attachment attachment) {
+    public Attachment addAttachment(Ticket ticket, User user, MultipartFile multipartFile) {
+        Attachment attachment = new Attachment.Builder()
+            .setTicket(ticket)
+            .build();
+        setFileAsBlob(attachment, multipartFile);
+
+        History history = new History.Builder()
+            .setUser(user)
+            .setTicket(ticket)
+            .setAction("File is attached")
+            .setDescription("File is attached: " + attachment.getName())
+            .build();
+        historyService.addHistory(history);
+
         return attachmentRepository.addAttachment(attachment);
     }
 
@@ -63,12 +83,15 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public Attachment removeAttachment(Long id) {
-        return attachmentRepository.removeAttachment(id);
-    }
+    public Attachment removeAttachment(Ticket ticket, User user, Attachment attachment) {
+        History history = new History.Builder()
+            .setUser(user)
+            .setTicket(ticket)
+            .setAction("File is removed")
+            .setDescription("File is removed: " + attachment.getName())
+            .build();
+        historyService.addHistory(history);
 
-    @Override
-    public Attachment updateAttachment(Attachment attachment) {
-        return attachmentRepository.updateAttachment(attachment);
+        return attachmentRepository.removeAttachment(attachment.getId());
     }
 }

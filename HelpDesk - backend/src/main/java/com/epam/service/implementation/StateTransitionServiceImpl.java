@@ -1,12 +1,14 @@
 package com.epam.service.implementation;
 
 import com.epam.component.StateTransitionManager;
+import com.epam.entity.History;
 import com.epam.entity.Ticket;
 import com.epam.entity.User;
 import com.epam.enums.State;
 import com.epam.enums.TicketAction;
 import com.epam.enums.UserRole;
 import com.epam.exception.ImpermissibleActionException;
+import com.epam.service.HistoryService;
 import com.epam.service.StateTransitionService;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -15,6 +17,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class StateTransitionServiceImpl implements StateTransitionService {
+
+    @Autowired
+    private HistoryService historyService;
 
     @Autowired
     private StateTransitionManager transitionManager;
@@ -38,6 +43,18 @@ public class StateTransitionServiceImpl implements StateTransitionService {
 
         assigneeUserToStateTransition(ticket, user, newState);
         ticket.setState(newState);
+
+        if (currentState != newState) {
+            History history = new History.Builder()
+                .setUser(user)
+                .setTicket(ticket)
+                .setAction("Ticket Status is changed")
+                .setDescription(
+                    "Ticket Status is changed from " + currentState.toString() + " to " + newState
+                        .toString())
+                .build();
+            historyService.addHistory(history);
+        }
     }
 
     private boolean isTransitionAllowed(State currentState, State newState, UserRole role) {
@@ -63,7 +80,8 @@ public class StateTransitionServiceImpl implements StateTransitionService {
         return transitionManager.getAction(currentState, newState, role);
     }
 
-    private Method getMethodForUserSetting(State currentState, TicketAction action) throws NoSuchMethodException {
+    private Method getMethodForUserSetting(State currentState, TicketAction action)
+        throws NoSuchMethodException {
         Method method = null;
         switch (currentState) {
             case NEW:

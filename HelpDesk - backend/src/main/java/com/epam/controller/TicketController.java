@@ -10,7 +10,6 @@ import com.epam.service.StateTransitionService;
 import com.epam.service.TicketService;
 import com.epam.service.UserService;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -70,10 +69,8 @@ public class TicketController {
         Ticket ticket = ticketDtoConverter.fromDtoToEntity(ticketDto);
 
         User owner = userService.getUserById(userId);
-        ticket.setOwner(owner);
-        ticket.setCreatedOn(new Date());
 
-        ticket = ticketService.addTicket(ticket);
+        ticket = ticketService.addTicket(ticket, owner);
         ticketDto = ticketDtoConverter.fromEntityToDto(ticket);
 
         return new ResponseEntity<>(ticketDto, HttpStatus.CREATED);
