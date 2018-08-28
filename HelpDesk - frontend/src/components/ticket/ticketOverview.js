@@ -120,7 +120,7 @@ class TicketOverview extends Component {
                             <button className="btn btn-success btn-custom btn-block" onClick={() => this.showTicketEdition()}>Edit</button>
                         </div>
                         <div className="row mt-2 mx-4">
-                            <button className="btn btn-success btn-custom btn-block" onClick={() => this.showFeedBack()}>Leave Feedback</button>
+                            <button className="btn btn-success btn-custom btn-block" onClick={() => this.showFeedBack()}>Feedback</button>
                         </div>
                     </div>
                 </div>
@@ -414,7 +414,7 @@ class TicketOverview extends Component {
         if (!this.state.ticket) {
             return;
         }
-        console.log('It is not implemented yet');
+        this.props.history.push('/feedback', { ticketId: this.state.ticket.id });
     }
 
     handleRequestError(error) {

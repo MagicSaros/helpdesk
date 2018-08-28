@@ -6,6 +6,7 @@ import TicketList from './components/ticket/ticketList';
 import TicketCreation from './components/ticket/ticketCreation';
 import TicketOverview from './components/ticket/ticketOverview';
 import TicketEdition from './components/ticket/ticketEdition';
+import Feedback from './components/ticket/feedback';
 import './App.css';
 
 const baseUrl = 'http://localhost:8080/api';
@@ -23,6 +24,7 @@ class App extends Component {
 						<Route path="/create" render={props => <TicketCreation baseUrl={baseUrl} {...props} />} />
 						<Route path="/overview" render={props => <TicketOverview baseUrl={baseUrl} {...props} />} />
 						<Route path="/edit" render={props => <TicketEdition baseUrl={baseUrl} {...props} />} />
+						<Route path="/feedback" render={props => <Feedback baseUrl={baseUrl} {...props} />} />
 					</Switch>
 				</div>
 			</Router>
