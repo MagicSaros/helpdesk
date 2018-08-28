@@ -34,6 +34,7 @@ public class BeanConfig {
     private static final String COMMENT_INIT_SCRIPT = "classpath:sql/commentInitScript.sql";
     private static final String ATTACHMENT_INIT_SCRIPT = "classpath:sql/attachmentInitScript.sql";
     private static final String HISTORY_INIT_SCRIPT = "classpath:sql/historyInitScript.sql";
+    private static final String FEEDBACK_INIT_SCRIPT = "classpath:sql/feedbackInitScript.sql";
     private static final String TEST_DATA_SCRIPT = "classpath:sql/testData.sql";
     private static final String PACKAGE_TO_SCAN = "com.epam.entity";
     private static final long FILE_MAX_SIZE = 5242880L;
@@ -48,6 +49,7 @@ public class BeanConfig {
             .addScript(COMMENT_INIT_SCRIPT)
             .addScript(ATTACHMENT_INIT_SCRIPT)
             .addScript(HISTORY_INIT_SCRIPT)
+            .addScript(FEEDBACK_INIT_SCRIPT)
             .addScript(TEST_DATA_SCRIPT);
         return builder.build();
     }

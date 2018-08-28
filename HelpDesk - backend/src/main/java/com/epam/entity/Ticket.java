@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -35,6 +36,7 @@ public class Ticket {
     private User approver;
     private Set<Comment> comments;
     private Set<Attachment> attachments;
+    private Feedback feedback;
 
     public Ticket() {
     }
@@ -53,6 +55,7 @@ public class Ticket {
         this.approver = builder.approver;
         this.comments = builder.comments;
         this.attachments = builder.attachments;
+        this.feedback = builder.feedback;
     }
 
     @Id
@@ -177,6 +180,15 @@ public class Ticket {
         this.attachments = attachments;
     }
 
+    @OneToOne(mappedBy = "ticket")
+    public Feedback getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(Feedback feedback) {
+        this.feedback = feedback;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -253,6 +265,7 @@ public class Ticket {
         private User approver;
         private Set<Comment> comments;
         private Set<Attachment> attachments;
+        private Feedback feedback;
 
         public Builder setId(Long id) {
             this.id = id;
@@ -316,6 +329,11 @@ public class Ticket {
 
         public Builder setAttacjments(Set<Attachment> attachments) {
             this.attachments = attachments;
+            return this;
+        }
+
+        public Builder setFeedback(Feedback feedback) {
+            this.feedback = feedback;
             return this;
         }
 

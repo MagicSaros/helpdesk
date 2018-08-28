@@ -66,6 +66,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .hasAnyRole(UserRole.EMPLOYEE.toString(), UserRole.MANAGER.toString())
             .antMatchers(HttpMethod.PUT, "/api/users/*/tickets/*")
             .hasAnyRole(UserRole.EMPLOYEE.toString(), UserRole.MANAGER.toString())
+            .antMatchers(HttpMethod.POST, "/api/users/*/tickets/*/feedback")
+            .hasAnyRole(UserRole.EMPLOYEE.toString(), UserRole.MANAGER.toString())
             .antMatchers(HttpMethod.PATCH, "/api/users/*/tickets/*")
             .hasAnyRole(UserRole.EMPLOYEE.toString(), UserRole.MANAGER.toString(), UserRole.ENGINEER.toString())
             .antMatchers("api/**")
