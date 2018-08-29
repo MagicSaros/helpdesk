@@ -20,11 +20,11 @@ class App extends Component {
 					<Switch>
 						<Route path="/login" render={props => <Login baseUrl={baseUrl} {...props} />} />
 						<Route path="/logout" render={props => <Logout {...props} />} />
-						<Route path="/tickets" render={props => <TicketList baseUrl={baseUrl} {...props} />} />
-						<Route path="/create" render={props => <TicketCreation baseUrl={baseUrl} {...props} />} />
-						<Route path="/overview" render={props => <TicketOverview baseUrl={baseUrl} {...props} />} />
-						<Route path="/edit" render={props => <TicketEdition baseUrl={baseUrl} {...props} />} />
-						<Route path="/feedback" render={props => <Feedback baseUrl={baseUrl} {...props} />} />
+						<Route exact path="/tickets" render={props => <TicketList baseUrl={baseUrl} {...props} />} />
+						<Route exact path="/tickets/create" render={props => <TicketCreation baseUrl={baseUrl} {...props} />} />
+						<Route exact path="/tickets/:ticketId" render={props => <TicketOverview baseUrl={baseUrl} {...props} />} />
+						<Route exact path="/tickets/:ticketId/edit" render={props => <TicketEdition baseUrl={baseUrl} {...props} />} />
+						<Route exact path="/tickets/:ticketId/feedback" render={props => <Feedback baseUrl={baseUrl} {...props} />} />
 					</Switch>
 				</div>
 			</Router>

@@ -177,7 +177,7 @@ class TicketEdition extends Component {
     }
 
     componentDidMount() {
-        this.ticketId = this.props.location.state ? this.props.location.state.ticketId : null;
+        this.ticketId = this.props.match.params ? this.props.match.params.ticketId : null;
         if (this.ticketId) {
             this.loadTicket();
         }
@@ -292,7 +292,8 @@ class TicketEdition extends Component {
     }
 
     showTicketOverview() {
-        this.props.history.push('/overview', { ticketId: this.ticketId });
+        let ticketId = this.ticketId ? this.ticketId : 0;
+        this.props.history.push(`/tickets/${ticketId}`)
     }
 
     updateField(event) {

@@ -173,7 +173,7 @@ class TicketOverview extends Component {
     }
 
     componentDidMount() {
-        this.ticketId = this.props.location.state ? this.props.location.state.ticketId : null;
+        this.ticketId = this.props.match.params ? this.props.match.params.ticketId : null;
         if (this.ticketId) {
             this.loadTicket();
         }
@@ -407,14 +407,16 @@ class TicketOverview extends Component {
         if (!this.state.ticket) {
             return;
         }
-        this.props.history.push('/edit', { ticketId: this.state.ticket.id });
+        let ticketId = this.state.ticket.id;
+        this.props.history.push(`/tickets/${ticketId}/edit`)
     }
 
     showFeedBack() {
         if (!this.state.ticket) {
             return;
         }
-        this.props.history.push('/feedback', { ticketId: this.state.ticket.id });
+        let ticketId = this.state.ticket.id;
+        this.props.history.push(`/tickets/${ticketId}/feedback`);
     }
 
     handleRequestError(error) {

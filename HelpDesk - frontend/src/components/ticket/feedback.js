@@ -91,7 +91,7 @@ class Feedback extends Component {
     }
 
     componentDidMount() {
-        this.ticketId = this.props.location.state ? this.props.location.state.ticketId : 0;
+        this.ticketId = this.props.match.params ? this.props.match.params.ticketId : 0;
         if (this.ticketId) {
             this.loadTicket();
         }

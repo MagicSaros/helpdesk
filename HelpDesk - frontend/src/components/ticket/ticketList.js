@@ -189,7 +189,7 @@ class TicketList extends Component {
     }
 
     openTicketCreation() {
-        this.props.history.push('/create');
+        this.props.history.push('/tickets/create');
     }
 
     getCurrentUser() {

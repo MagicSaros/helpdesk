@@ -153,7 +153,8 @@ class TicketItem extends Component {
 
     showTicketOverview(event) {
         event.preventDefault();
-        this.props.history.push('/overview', { ticketId: this.props.ticket.id });
+        let ticketId = this.props.ticket ? this.props.ticket.id : 0;
+        this.props.history.push(`/tickets/${ticketId}`);
     }
 
     showTicketsList() {
