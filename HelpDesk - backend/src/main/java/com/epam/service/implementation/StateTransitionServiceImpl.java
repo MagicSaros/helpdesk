@@ -8,8 +8,10 @@ import com.epam.enums.State;
 import com.epam.enums.TicketAction;
 import com.epam.enums.UserRole;
 import com.epam.exception.ImpermissibleActionException;
+import com.epam.service.EmailNotificationService;
 import com.epam.service.HistoryService;
 import com.epam.service.StateTransitionService;
+import com.epam.service.UserService;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,12 @@ public class StateTransitionServiceImpl implements StateTransitionService {
 
     @Autowired
     private StateTransitionManager transitionManager;
+
+    @Autowired
+    private EmailNotificationService emailNotificationService;
+
+    @Autowired
+    private UserService userService;
 
     @Override
     public Collection<TicketAction> getAllowedActions(Ticket ticket, User user) {
@@ -42,6 +50,7 @@ public class StateTransitionServiceImpl implements StateTransitionService {
         }
 
         assigneeUserToStateTransition(ticket, user, newState);
+        provideNotification(ticket, user, newState);
         ticket.setState(newState);
 
         if (currentState != newState) {
@@ -54,6 +63,42 @@ public class StateTransitionServiceImpl implements StateTransitionService {
                         .toString())
                 .build();
             historyService.addHistory(history);
+        }
+    }
+
+    private void provideNotification(Ticket ticket, User user, State newState) {
+        State currentState = ticket.getState();
+        User owner = ticket.getOwner();
+        User approver = ticket.getApprover();
+        TicketAction action = transitionManager.getAction(currentState, newState, user.getRole());
+        switch (action) {
+            case SUBMIT:
+                userService
+                    .getUsersByRole(UserRole.MANAGER)
+                    .forEach(
+                        manager -> emailNotificationService.notifyUser(ticket, manager, newState));
+                break;
+            case APPROVE:
+                userService
+                    .getUsersByRole(UserRole.ENGINEER)
+                    .forEach(engineer -> emailNotificationService
+                        .notifyUser(ticket, engineer, newState));
+                emailNotificationService.notifyUser(ticket, owner, newState);
+                break;
+            case DECLINE:
+                emailNotificationService.notifyUser(ticket, owner, newState);
+                break;
+            case CANCEL:
+                emailNotificationService.notifyUser(ticket, owner, newState);
+                if (currentState == State.APPROVED) {
+                    emailNotificationService.notifyUser(ticket, approver, newState);
+                }
+                break;
+            case DONE:
+                emailNotificationService.notifyUser(ticket, owner, newState);
+                break;
+            default:
+                break;
         }
     }
 

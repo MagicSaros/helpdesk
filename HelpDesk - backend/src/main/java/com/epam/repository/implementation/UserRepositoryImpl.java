@@ -1,6 +1,7 @@
 package com.epam.repository.implementation;
 
 import com.epam.entity.User;
+import com.epam.enums.UserRole;
 import com.epam.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
@@ -57,5 +58,13 @@ public class UserRepositoryImpl implements UserRepository {
             userOptional = Optional.of(foundUsers.get(0));
         }
         return userOptional;
+    }
+
+    @Override
+    public List<User> getUsersByRole(UserRole role) {
+        Session session = sessionFactory.getCurrentSession();
+        Query<User> query = session.createQuery("from User where role = :role", User.class);
+        query.setParameter("role", role);
+        return query.list();
     }
 }

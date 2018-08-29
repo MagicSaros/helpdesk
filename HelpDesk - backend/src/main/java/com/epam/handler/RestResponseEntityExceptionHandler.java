@@ -6,10 +6,12 @@ import com.epam.exception.BadCredentialsException;
 import com.epam.exception.CategoryNotFoundException;
 import com.epam.exception.CommentNotFoundException;
 import com.epam.exception.DtoNotFoundException;
+import com.epam.exception.EmailNotificationException;
 import com.epam.exception.FileLoadingException;
 import com.epam.exception.ImpermissibleActionException;
 import com.epam.exception.TicketNotFoundException;
 import com.epam.exception.UserNotFoundException;
+import com.epam.service.EmailNotificationService;
 import java.util.Date;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -93,4 +95,16 @@ public class RestResponseEntityExceptionHandler {
             .build();
         return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
     }
+    @ExceptionHandler({EmailNotificationException.class})
+    public ResponseEntity<ApiError> handleEmailNotificationException(Exception e) {
+        ApiError apiError = new ApiError.Builder()
+            .setTitle("Email notification error")
+            .setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .setMessage(e.getMessage())
+            .setTimestamp(new Date().getTime())
+            .setDeveloperMessage(e.getClass().getName())
+            .build();
+        return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

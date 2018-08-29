@@ -6,6 +6,7 @@ import com.epam.entity.User;
 import com.epam.enums.State;
 import com.epam.exception.ImpermissibleActionException;
 import com.epam.repository.FeedbackRepository;
+import com.epam.service.EmailNotificationService;
 import com.epam.service.FeedbackService;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ public class FeedbackServiceImpl implements FeedbackService {
     @Autowired
     private FeedbackRepository feedbackRepository;
 
+    @Autowired
+    private EmailNotificationService emailNotificationService;
+
     @Override
     public Feedback addFeedback(Ticket ticket, User user, Feedback feedback) {
         if (!ticket.getOwner().equals(user)) {
@@ -28,6 +32,9 @@ public class FeedbackServiceImpl implements FeedbackService {
         if (ticket.getState() != State.DONE) {
             throw new ImpermissibleActionException("Only ticket in state DONE is able to has feedback");
         }
+
+        emailNotificationService.notifyUser(ticket, ticket.getAssignee(), State.DONE);
+
         feedback.setUser(user);
         feedback.setTicket(ticket);
         feedback.setDate(new Date());
