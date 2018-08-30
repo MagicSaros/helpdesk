@@ -82,6 +82,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity webSecurity) {
         webSecurity.ignoring().antMatchers(HttpMethod.POST, "/api/login");
+        webSecurity.ignoring().antMatchers("/api-docs/**");
+        webSecurity.ignoring().antMatchers("/swagger-ui/**");
+        webSecurity.ignoring().antMatchers("/default/**");
     }
 
     @Bean

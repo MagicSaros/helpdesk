@@ -9,9 +9,9 @@ public class CategoryDto {
 
     }
 
-    private CategoryDto(Builder builder) {
-        this.id = builder.id;
-        this.name = builder.name;
+    public CategoryDto(Long id, String name) {
+        this.id = id;
+        this.name = name;
     }
 
     public Long getId() {
@@ -28,25 +28,5 @@ public class CategoryDto {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public static class Builder {
-
-        private Long id;
-        private String name;
-
-        public Builder setId(Long id) {
-            this.id = id;
-            return this;
-        }
-
-        public Builder setName(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public CategoryDto build() {
-            return new CategoryDto(this);
-        }
     }
 }

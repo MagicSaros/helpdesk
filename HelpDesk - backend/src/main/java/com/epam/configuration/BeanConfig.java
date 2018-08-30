@@ -7,6 +7,11 @@ import com.epam.enums.TicketAction;
 import com.epam.enums.UserRole;
 import com.epam.security.AuthenticationEntryPointImpl;
 import com.epam.service.implementation.UserDetailsServiceImpl;
+import com.mangofactory.swagger.configuration.SpringSwaggerConfig;
+import com.mangofactory.swagger.models.dto.ApiInfo;
+import com.mangofactory.swagger.models.dto.builder.ApiInfoBuilder;
+import com.mangofactory.swagger.plugin.EnableSwagger;
+import com.mangofactory.swagger.plugin.SwaggerSpringMvcPlugin;
 import java.util.Properties;
 import javax.sql.DataSource;
 import org.hibernate.SessionFactory;
@@ -29,6 +34,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 @Configuration
 @EnableTransactionManagement
+@EnableSwagger
 public class BeanConfig {
 
     private static final String USER_INIT_SCRIPT = "classpath:sql/userInitScript.sql";
@@ -149,5 +155,20 @@ public class BeanConfig {
         props.put("mail.debug", "true");
 
         return mailSender;
+    }
+
+    @Bean
+    @Autowired
+    public SwaggerSpringMvcPlugin configureSwagger(SpringSwaggerConfig springSwaggerConfig) {
+        SwaggerSpringMvcPlugin swaggerSpringMvcPlugin
+            = new SwaggerSpringMvcPlugin(springSwaggerConfig);
+        ApiInfo apiInfo = new ApiInfoBuilder()
+            .title("Helpdesk REST API")
+            .description("Helpdesk Api for creating and managing help tickets")
+            .contact("magicsaros@gmail.com")
+            .build();
+        swaggerSpringMvcPlugin.apiInfo(apiInfo)
+            .apiVersion("1.0");
+        return swaggerSpringMvcPlugin;
     }
 }

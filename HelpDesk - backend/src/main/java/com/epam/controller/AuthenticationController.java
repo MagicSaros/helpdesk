@@ -4,10 +4,14 @@ import com.epam.converter.implementation.UserDtoConverter;
 import com.epam.dto.AuthenticationTokenDto;
 import com.epam.dto.UserDetailsDto;
 import com.epam.entity.User;
+import com.epam.exception.ApiError;
 import com.epam.exception.BadCredentialsException;
-import com.epam.service.EncryptionService;
 import com.epam.service.TokenService;
 import com.epam.service.UserService;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiResponse;
+import com.wordnik.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin
+@Api(value = "authentication", description = "Authentication API")
 public class AuthenticationController {
 
     private static final String TOKEN_HEADER = "Auth-Token";
@@ -42,6 +47,11 @@ public class AuthenticationController {
     private TokenService tokenService;
 
     @PostMapping("/login")
+    @ApiOperation(value = "Login to application", response = AuthenticationTokenDto.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Success", response = AuthenticationTokenDto.class),
+        @ApiResponse(code = 401, message = "Fail", response = ApiError.class),
+        @ApiResponse(code = 500, message = "Internal server error", response = ApiError.class)})
     public ResponseEntity<AuthenticationTokenDto> login(
         @RequestBody final UserDetailsDto userDetailsDto) {
         String username = userDetailsDto.getUsername();
@@ -67,6 +77,11 @@ public class AuthenticationController {
     }
 
     @PostMapping("/logout")
+    @ApiOperation(value = "Logout from application")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Success"),
+        @ApiResponse(code = 404, message = "Fail", response = ApiError.class),
+        @ApiResponse(code = 500, message = "Internal server error", response = ApiError.class)})
     public ResponseEntity logout() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = ((org.springframework.security.core.userdetails.User) authentication

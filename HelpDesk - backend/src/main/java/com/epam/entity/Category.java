@@ -19,9 +19,9 @@ public class Category {
 
     }
 
-    private Category(Builder builder) {
-        this.id = builder.id;
-        this.name = builder.name;
+    public Category(Long id, String name) {
+        this.id = id;
+        this.name = name;
     }
 
     @Id
@@ -75,25 +75,5 @@ public class Category {
             .append("id", id)
             .append("name", name)
             .toString();
-    }
-
-    public static class Builder {
-
-        private Long id;
-        private String name;
-
-        public Builder setId(Long id) {
-            this.id = id;
-            return this;
-        }
-
-        public Builder setName(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public Category build() {
-            return new Category(this);
-        }
     }
 }
