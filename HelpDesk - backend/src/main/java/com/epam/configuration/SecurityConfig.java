@@ -3,6 +3,7 @@ package com.epam.configuration;
 import com.epam.enums.UserRole;
 import com.epam.security.AuthenticationFilter;
 import javax.servlet.Filter;
+import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -15,6 +16,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -28,48 +30,40 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private AuthenticationEntryPoint authenticationEntryPoint;
 
     @Autowired
+    private DataSource dataSource;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    @Autowired
     protected void configureGlobal(AuthenticationManagerBuilder authentication) throws Exception {
-        authentication.inMemoryAuthentication()
+        authentication
+            .jdbcAuthentication().dataSource(dataSource)
             .passwordEncoder(NoOpPasswordEncoder.getInstance())
-            .withUser("user1_mogilev@yopmail.com")
-            .password("P@ssword1")
-            .roles(UserRole.EMPLOYEE.toString())
-            .and()
-            .withUser("user2_mogilev@yopmail.com")
-            .password("P@ssword1")
-            .roles(UserRole.EMPLOYEE.toString())
-            .and()
-            .withUser("manager1_mogilev@yopmail.com")
-            .password("P@ssword1")
-            .roles(UserRole.MANAGER.toString())
-            .and()
-            .withUser("manager2_mogilev@yopmail.com")
-            .password("P@ssword1")
-            .roles(UserRole.MANAGER.toString())
-            .and()
-            .withUser("engineer1_mogilev@yopmail.com")
-            .password("P@ssword1")
-            .roles(UserRole.ENGINEER.toString())
-            .and()
-            .withUser("engineer2_mogilev@yopmail.com")
-            .password("P@ssword1")
-            .roles(UserRole.ENGINEER.toString());
+            .usersByUsernameQuery("select email, password, enabled from user where email=?")
+            .authoritiesByUsernameQuery(
+                "select email, user_role from authority inner join user on user.id = authority.user_id where email=?");
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        final String employee = UserRole.EMPLOYEE.toString();
+        final String manager = UserRole.MANAGER.toString();
+        final String engineer = UserRole.ENGINEER.toString();
+
         http
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
             .antMatchers(HttpMethod.POST, "/api/users/*/tickets")
-            .hasAnyRole(UserRole.EMPLOYEE.toString(), UserRole.MANAGER.toString())
+            .hasAnyRole(employee, manager)
             .antMatchers(HttpMethod.PUT, "/api/users/*/tickets/*")
-            .hasAnyRole(UserRole.EMPLOYEE.toString(), UserRole.MANAGER.toString())
+            .hasAnyRole(employee, manager)
             .antMatchers(HttpMethod.POST, "/api/users/*/tickets/*/feedback")
-            .hasAnyRole(UserRole.EMPLOYEE.toString(), UserRole.MANAGER.toString())
+            .hasAnyRole(employee, manager)
             .antMatchers(HttpMethod.PATCH, "/api/users/*/tickets/*")
-            .hasAnyRole(UserRole.EMPLOYEE.toString(), UserRole.MANAGER.toString(), UserRole.ENGINEER.toString())
+            .hasAnyRole(employee, manager,
+                engineer)
             .antMatchers("api/**")
             .authenticated()
             .and()

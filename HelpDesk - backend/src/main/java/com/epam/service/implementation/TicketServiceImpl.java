@@ -9,6 +9,7 @@ import com.epam.enums.UserRole;
 import com.epam.exception.TicketNotFoundException;
 import com.epam.repository.TicketRepository;
 import com.epam.service.CategoryService;
+import com.epam.service.EmailNotificationService;
 import com.epam.service.HistoryService;
 import com.epam.service.StateTransitionService;
 import com.epam.service.TicketService;
@@ -39,6 +40,9 @@ public class TicketServiceImpl implements TicketService {
 
     @Autowired
     private HistoryService historyService;
+
+    @Autowired
+    private EmailNotificationService emailNotificationService;
 
     @Override
     public Ticket getTicketById(Long id) {
@@ -74,7 +78,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public Ticket addTicket(Ticket ticket, User user) {
-        ticket.setOwner(user);
+        ticket.setOwner(null);
         ticket.setAssignee(null);
         ticket.setApprover(null);
         ticket.setCreatedOn(new Date());
@@ -86,15 +90,25 @@ public class TicketServiceImpl implements TicketService {
             ticket.setCategory(category);
         }
 
+        State newState = ticket.getState();
+        if (newState == null) {
+            newState = State.DRAFT;
+        }
+        ticket.setState(State.DRAFT);
+
+        Ticket addedTicket = ticketRepository.addTicket(ticket);
+
         History history = new History.Builder()
             .setUser(user)
-            .setTicket(ticket)
+            .setTicket(addedTicket)
             .setAction("Ticket is created")
             .setDescription("Ticket is created")
             .build();
         historyService.addHistory(history);
 
-        return ticketRepository.addTicket(ticket);
+        stateTransitionService.transitTicketState(addedTicket, user, newState);
+
+        return addedTicket;
     }
 
     @Override

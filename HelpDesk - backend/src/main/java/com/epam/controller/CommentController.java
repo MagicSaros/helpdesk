@@ -8,7 +8,6 @@ import com.epam.entity.User;
 import com.epam.service.CommentService;
 import com.epam.service.TicketService;
 import com.epam.service.UserService;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -46,7 +45,7 @@ public class CommentController {
         List<CommentDto> comments = commentService
             .getCommentsByTicketId(ticketId)
             .stream()
-            .map(comment -> commentDtoConverter.fromEntityToDto(comment))
+            .map(commentDtoConverter::fromEntityToDto)
             .collect(Collectors.toList());
         return new ResponseEntity<>(comments, HttpStatus.OK);
     }

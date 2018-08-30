@@ -4,5 +4,6 @@ CREATE TABLE user(
     last_name VARCHAR(25),
     role_id INTEGER,
     email VARCHAR(100),
-    password VARCHAR(20)
+    password VARCHAR(100),
+    enabled TINYINT NOT NULL DEFAULT 1
 );

@@ -47,7 +47,7 @@ public class AttachmentController {
         List<AttachmentDto> attachments = attachmentService
             .getAttachmentsByTicketId(ticketId)
             .stream()
-            .map(attachment -> attachmentDtoConverter.fromEntityToDto(attachment))
+            .map(attachmentDtoConverter::fromEntityToDto)
             .collect(Collectors.toList());
         return new ResponseEntity<>(attachments, HttpStatus.OK);
     }

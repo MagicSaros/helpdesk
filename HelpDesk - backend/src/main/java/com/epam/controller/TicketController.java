@@ -50,7 +50,7 @@ public class TicketController {
     public ResponseEntity<List<TicketDto>> getAllTickets(@PathVariable Long userId) {
         User user = userService.getUserById(userId);
         List<TicketDto> ticketsDto = ticketService.getTicketsByUser(user).stream()
-            .map(ticket -> ticketDtoConverter.fromEntityToDto(ticket))
+            .map(ticketDtoConverter::fromEntityToDto)
             .collect(Collectors.toList());
         return new ResponseEntity<>(ticketsDto, HttpStatus.OK);
     }

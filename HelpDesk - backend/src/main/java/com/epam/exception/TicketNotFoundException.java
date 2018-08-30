@@ -3,7 +3,7 @@ package com.epam.exception;
 public class TicketNotFoundException extends RuntimeException {
 
     public TicketNotFoundException() {
-        super("Ticket not found");
+        this("Ticket not found");
     }
 
     public TicketNotFoundException(String message) {

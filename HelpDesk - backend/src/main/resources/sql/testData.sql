@@ -4,6 +4,18 @@ INSERT INTO user (first_name, last_name, role_id, email, password) VALUES('John'
 INSERT INTO user (first_name, last_name, role_id, email, password) VALUES('Tommy', 'Dent', 2, 'user2_mogilev@yopmail.com', 'P@ssword1');
 INSERT INTO user (first_name, last_name, role_id, email, password) VALUES('Sam', 'Johnes', 1, 'engineer1_mogilev@yopmail.com', 'P@ssword1');
 INSERT INTO user (first_name, last_name, role_id, email, password) VALUES('Jay', 'Carter', 1, 'engineer2_mogilev@yopmail.com', 'P@ssword1');
+-- INSERT INTO user (first_name, last_name, role_id, email, password) VALUES('Alex', 'Martin', 0, 'manager1_mogilev@yopmail.com', '$2a$10$XDsL8skz8ylnUz2afPyJg.bFmY/4QohYE.KiZGmwrWnCfjER9F32S');
+-- INSERT INTO user (first_name, last_name, role_id, email, password) VALUES('Patrick', 'Jane', 0, 'manager2_mogilev@yopmail.com', '$2a$10$QV3KKvPp1R2GnGbDMkEBCe78IzDHUmt5b8yKUbkcXjlxcT6ZnWs7m');
+-- INSERT INTO user (first_name, last_name, role_id, email, password) VALUES('John', 'Doe', 2, 'user1_mogilev@yopmail.com', '$2a$10$tJ6k3aKiTGUohWWpN9qmbuizqb8Wum1Hbv8KY6EggFGvE6atP/8KW');
+-- INSERT INTO user (first_name, last_name, role_id, email, password) VALUES('Tommy', 'Dent', 2, 'user2_mogilev@yopmail.com', '$2a$10$C2o5n49jPe8JF746p8pNZOZKKkhYTIib9fnRv.2hxQjl1UXx9YkeO');
+-- INSERT INTO user (first_name, last_name, role_id, email, password) VALUES('Sam', 'Johnes', 1, 'engineer1_mogilev@yopmail.com', '$2a$10$F1mLZUGj6/mcdBO./Qc1CexlZApMYJpgn3vZz2KHnPZ3UR3NtB5YC');
+-- INSERT INTO user (first_name, last_name, role_id, email, password) VALUES('Jay', 'Carter', 1, 'engineer2_mogilev@yopmail.com', '$2a$10$5Zu8G1kndeymwemj0mSOSed4BmmcBVIbMGsz9.APoY5t15BX7DZNy');
+INSERT INTO authority (user_id, user_role) VALUES(1, 'ROLE_MANAGER');
+INSERT INTO authority (user_id, user_role) VALUES(2, 'ROLE_MANAGER');
+INSERT INTO authority (user_id, user_role) VALUES(3, 'ROLE_EMPLOYEE');
+INSERT INTO authority (user_id, user_role) VALUES(4, 'ROLE_EMPLOYEE');
+INSERT INTO authority (user_id, user_role) VALUES(5, 'ROLE_ENGINEER');
+INSERT INTO authority (user_id, user_role) VALUES(6, 'ROLE_ENGINEER');
 INSERT INTO category (name) VALUES ('Application & Services');
 INSERT INTO category (name) VALUES ('Benefits & Paper Work');
 INSERT INTO category (name) VALUES ('Hardware & Software');

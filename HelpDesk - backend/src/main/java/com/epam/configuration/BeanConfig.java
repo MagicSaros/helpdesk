@@ -1,12 +1,12 @@
 package com.epam.configuration;
 
 import com.epam.component.StateTransitionManager;
+import com.epam.component.implementation.StateTransitionManagerImpl;
 import com.epam.enums.State;
 import com.epam.enums.TicketAction;
 import com.epam.enums.UserRole;
 import com.epam.security.AuthenticationEntryPointImpl;
-import com.epam.security.AuthenticationTokenProvider;
-import com.epam.component.implementation.StateTransitionManagerImpl;
+import com.epam.service.implementation.UserDetailsServiceImpl;
 import java.util.Properties;
 import javax.sql.DataSource;
 import org.hibernate.SessionFactory;
@@ -20,9 +20,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
@@ -32,12 +32,14 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 public class BeanConfig {
 
     private static final String USER_INIT_SCRIPT = "classpath:sql/userInitScript.sql";
+    private static final String AUTHORITY_INIT_SCRIPT = "classpath:sql/authorityInitScript.sql";
     private static final String CATEGORY_INIT_SCRIPT = "classpath:sql/categoryInitScript.sql";
     private static final String TICKET_INIT_SCRIPT = "classpath:sql/ticketInitScript.sql";
     private static final String COMMENT_INIT_SCRIPT = "classpath:sql/commentInitScript.sql";
     private static final String ATTACHMENT_INIT_SCRIPT = "classpath:sql/attachmentInitScript.sql";
     private static final String HISTORY_INIT_SCRIPT = "classpath:sql/historyInitScript.sql";
     private static final String FEEDBACK_INIT_SCRIPT = "classpath:sql/feedbackInitScript.sql";
+    private static final String TOKEN_INIT_SCRIPT = "classpath:sql/tokenInitScript.sql";
     private static final String TEST_DATA_SCRIPT = "classpath:sql/testData.sql";
     private static final String PACKAGE_TO_SCAN = "com.epam.entity";
     private static final long FILE_MAX_SIZE = 5242880L;
@@ -47,12 +49,14 @@ public class BeanConfig {
         EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder()
             .setType(EmbeddedDatabaseType.H2)
             .addScript(USER_INIT_SCRIPT)
+            .addScript(AUTHORITY_INIT_SCRIPT)
             .addScript(CATEGORY_INIT_SCRIPT)
             .addScript(TICKET_INIT_SCRIPT)
             .addScript(COMMENT_INIT_SCRIPT)
             .addScript(ATTACHMENT_INIT_SCRIPT)
             .addScript(HISTORY_INIT_SCRIPT)
             .addScript(FEEDBACK_INIT_SCRIPT)
+            .addScript(TOKEN_INIT_SCRIPT)
             .addScript(TEST_DATA_SCRIPT);
         return builder.build();
     }
@@ -80,9 +84,8 @@ public class BeanConfig {
     }
 
     @Bean
-    @Autowired
-    public UserDetailsService userDetailsService(AuthenticationManagerBuilder authentication) {
-        return authentication.getDefaultUserDetailsService();
+    public UserDetailsService userDetailsService() {
+        return new UserDetailsServiceImpl();
     }
 
     @Bean
@@ -91,9 +94,8 @@ public class BeanConfig {
     }
 
     @Bean
-    @Autowired
-    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
-        return new AuthenticationTokenProvider(userDetailsService);
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(10);
     }
 
     @Bean
@@ -140,7 +142,6 @@ public class BeanConfig {
 
         mailSender.setUsername("magicsaros@gmail.com");
         mailSender.setPassword("esnpiiyqbvftgbgp");
-
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");

@@ -31,7 +31,7 @@ public class HistoryController {
     private HistoryService historyService;
 
     @Autowired
-    private HistoryDtoConverter hIstoryDtoConverter;
+    private HistoryDtoConverter historyDtoConverter;
 
     @Autowired
     private TicketService ticketService;
@@ -45,7 +45,7 @@ public class HistoryController {
         List<HistoryDto> histories = historyService
             .getHistoriesByTicketId(ticketId)
             .stream()
-            .map(history -> hIstoryDtoConverter.fromEntityToDto(history))
+            .map(historyDtoConverter::fromEntityToDto)
             .collect(Collectors.toList());
         return new ResponseEntity<>(histories, HttpStatus.OK);
     }
@@ -53,7 +53,7 @@ public class HistoryController {
     @PostMapping
     public ResponseEntity<HistoryDto> createHistoryAction(@PathVariable Long userId,
         @PathVariable Long ticketId, @Valid @RequestBody HistoryDto historyDto) {
-        History history = hIstoryDtoConverter.fromDtoToEntity(historyDto);
+        History history = historyDtoConverter.fromDtoToEntity(historyDto);
 
         Ticket ticket = ticketService.getTicketById(ticketId);
         User user = userService.getUserById(userId);
@@ -61,7 +61,7 @@ public class HistoryController {
         history.setUser(user);
 
         history = historyService.addHistory(history);
-        historyDto = hIstoryDtoConverter.fromEntityToDto(history);
+        historyDto = historyDtoConverter.fromEntityToDto(history);
 
         return new ResponseEntity<>(historyDto, HttpStatus.CREATED);
     }

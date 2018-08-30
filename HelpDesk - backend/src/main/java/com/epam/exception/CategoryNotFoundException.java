@@ -3,7 +3,7 @@ package com.epam.exception;
 public class CategoryNotFoundException extends RuntimeException {
 
     public CategoryNotFoundException() {
-        super("Category not found");
+        this("Category not found");
     }
 
     public CategoryNotFoundException(String message) {

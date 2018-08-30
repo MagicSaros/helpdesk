@@ -5,7 +5,7 @@ import com.epam.dto.AuthenticationTokenDto;
 import com.epam.dto.UserDetailsDto;
 import com.epam.dto.UserDto;
 import com.epam.entity.User;
-import com.epam.service.EncryptionService;
+import com.epam.service.TokenService;
 import com.epam.service.UserService;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,9 +27,6 @@ public class AuthenticationControllerTest {
     private static final String URL_PREFIX = "/api";
 
     @Mock
-    private EncryptionService encryptionService;
-
-    @Mock
     private UserDetailsService userDetailsService;
 
     @Mock
@@ -37,6 +34,9 @@ public class AuthenticationControllerTest {
 
     @Mock
     private UserDtoConverter userDtoConverter;
+
+    @Mock
+    private TokenService tokenService;
 
     @InjectMocks
     private AuthenticationController authenticationController = new AuthenticationController();
@@ -61,17 +61,17 @@ public class AuthenticationControllerTest {
             .setPassword("password")
             .build();
 
-        UserDetailsDto userDetailsDto = new UserDetailsDto("username", "password");
-        AuthenticationTokenDto tokenDto = new AuthenticationTokenDto(userDto, tokenString, tokenHeader);
+        UserDetailsDto userDetailsDto = new UserDetailsDto("email", "password");
+        AuthenticationTokenDto tokenDto = new AuthenticationTokenDto(userDto, tokenString,
+            tokenHeader);
         UserDetails userDetails = BDDMockito.mock(UserDetails.class);
 
         BDDMockito.given(userDetailsService.loadUserByUsername(userDetailsDto.getUsername()))
             .willReturn(userDetails);
         BDDMockito.given(userDetails.getPassword()).willReturn("password");
-        BDDMockito.given(userService.getUserByEmail(userDetails.getUsername())).willReturn(user);
+        BDDMockito.given(userService.getUserByEmail(userDetailsDto.getUsername())).willReturn(user);
         BDDMockito.given(userDtoConverter.fromEntityToDto(user)).willReturn(userDto);
-        BDDMockito.given(encryptionService.encode(userDetailsDto.getUsername()))
-            .willReturn(tokenString);
+        BDDMockito.given(tokenService.generateToken(user)).willReturn(tokenString);
 
         given()
             .contentType("application/json")

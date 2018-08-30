@@ -18,12 +18,12 @@ public class UserRepositoryImpl implements UserRepository {
     SessionFactory sessionFactory;
 
     @Override
-    public User getUserByEmail(String email) {
+    public Optional<User> getUserByEmail(String email) {
         Session session = sessionFactory.getCurrentSession();
         Query<User> query = session
             .createQuery("from User as u where u.email = :email", User.class);
         query.setParameter("email", email);
-        return query.list().get(0);
+        return query.uniqueResultOptional();
     }
 
     @Override

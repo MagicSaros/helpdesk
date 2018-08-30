@@ -1,7 +1,6 @@
 package com.epam.entity;
 
 import java.sql.Timestamp;
-import java.util.Date;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;

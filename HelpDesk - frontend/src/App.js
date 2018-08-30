@@ -18,8 +18,9 @@ class App extends Component {
 			<Router>
 				<div className="App">
 					<Switch>
+						<Route exact path="/" render={props => <Login baseUrl={baseUrl} {...props} />} />
 						<Route path="/login" render={props => <Login baseUrl={baseUrl} {...props} />} />
-						<Route path="/logout" render={props => <Logout {...props} />} />
+						<Route path="/logout" render={props => <Logout baseUrl={baseUrl} {...props} />} />
 						<Route exact path="/tickets" render={props => <TicketList baseUrl={baseUrl} {...props} />} />
 						<Route exact path="/tickets/create" render={props => <TicketCreation baseUrl={baseUrl} {...props} />} />
 						<Route exact path="/tickets/:ticketId" render={props => <TicketOverview baseUrl={baseUrl} {...props} />} />

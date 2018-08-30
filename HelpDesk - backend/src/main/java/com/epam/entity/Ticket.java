@@ -327,7 +327,7 @@ public class Ticket {
             return this;
         }
 
-        public Builder setAttacjments(Set<Attachment> attachments) {
+        public Builder setAttachments(Set<Attachment> attachments) {
             this.attachments = attachments;
             return this;
         }

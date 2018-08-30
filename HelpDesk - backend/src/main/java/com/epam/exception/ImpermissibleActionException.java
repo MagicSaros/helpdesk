@@ -3,7 +3,7 @@ package com.epam.exception;
 public class ImpermissibleActionException extends RuntimeException {
 
     public ImpermissibleActionException() {
-        super("Invalid action");
+        this("Invalid action");
     }
 
     public ImpermissibleActionException(String message) {

@@ -11,7 +11,6 @@ import com.epam.exception.FileLoadingException;
 import com.epam.exception.ImpermissibleActionException;
 import com.epam.exception.TicketNotFoundException;
 import com.epam.exception.UserNotFoundException;
-import com.epam.service.EmailNotificationService;
 import java.util.Date;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class RestResponseEntityExceptionHandler {
 
     @ExceptionHandler({BadCredentialsException.class})
-    public ResponseEntity<ApiError> handleUsernameNotFound(Exception e) {
+    public ResponseEntity<ApiError> handleBadCredentials(Exception e) {
         ApiError apiError = new ApiError.Builder()
             .setTitle("Bad credentials")
             .setStatus(HttpStatus.UNAUTHORIZED.value())
@@ -95,6 +94,7 @@ public class RestResponseEntityExceptionHandler {
             .build();
         return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
     }
+
     @ExceptionHandler({EmailNotificationException.class})
     public ResponseEntity<ApiError> handleEmailNotificationException(Exception e) {
         ApiError apiError = new ApiError.Builder()

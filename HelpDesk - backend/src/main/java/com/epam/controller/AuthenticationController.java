@@ -6,22 +6,27 @@ import com.epam.dto.UserDetailsDto;
 import com.epam.entity.User;
 import com.epam.exception.BadCredentialsException;
 import com.epam.service.EncryptionService;
+import com.epam.service.TokenService;
 import com.epam.service.UserService;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
 @CrossOrigin
 public class AuthenticationController {
 
-    private static final Logger LOGGER = Logger.getLogger(AuthenticationController.class);
     private static final String TOKEN_HEADER = "Auth-Token";
 
     @Autowired
@@ -34,31 +39,40 @@ public class AuthenticationController {
     private UserDtoConverter userDtoConverter;
 
     @Autowired
-    private EncryptionService encryptionService;
+    private TokenService tokenService;
 
-    @PostMapping(value = "/login")
+    @PostMapping("/login")
     public ResponseEntity<AuthenticationTokenDto> login(
         @RequestBody final UserDetailsDto userDetailsDto) {
-        LOGGER.debug("Got username: " + userDetailsDto.getUsername());
+        String username = userDetailsDto.getUsername();
 
         UserDetails userDetails;
         try {
-            userDetails = userDetailsService.loadUserByUsername(userDetailsDto.getUsername());
+            userDetails = userDetailsService.loadUserByUsername(username);
         } catch (UsernameNotFoundException e) {
-            LOGGER.info("Not verified");
             throw new BadCredentialsException("Invalid login or password");
         }
 
-        if (userDetails.getPassword().equals(userDetailsDto.getPassword())) {
-            LOGGER.info("Verified");
-            User user = userService.getUserByEmail(userDetails.getUsername());
-            String tokenString = encryptionService.encode(userDetailsDto.getUsername());
-            AuthenticationTokenDto token = new AuthenticationTokenDto(userDtoConverter.fromEntityToDto(user), tokenString, TOKEN_HEADER);
-            LOGGER.debug("Token: " + token.toString());
+        boolean isMatch = userDetailsDto.getPassword().equals(userDetails.getPassword());
+
+        if (isMatch) {
+            User user = userService.getUserByEmail(username);
+            String accessToken = tokenService.generateToken(user);
+            AuthenticationTokenDto token = new AuthenticationTokenDto(
+                userDtoConverter.fromEntityToDto(user), accessToken, TOKEN_HEADER);
             return new ResponseEntity<>(token, HttpStatus.OK);
         } else {
-            LOGGER.info("Not verified");
             throw new BadCredentialsException("Invalid login or password");
         }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity logout() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = ((org.springframework.security.core.userdetails.User) authentication
+            .getPrincipal()).getUsername();
+        User user = userService.getUserByEmail(username);
+        tokenService.clearToken(user);
+        return new ResponseEntity(HttpStatus.OK);
     }
 }

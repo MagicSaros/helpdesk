@@ -29,7 +29,7 @@ public class ConfigController {
         List<CategoryDto> categoriesDto = categoryService
             .getAllCategories()
             .stream()
-            .map(category -> categoryDtoConverter.fromEntityToDto(category))
+            .map(categoryDtoConverter::fromEntityToDto)
             .collect(Collectors.toList());
         return new ResponseEntity<>(categoriesDto, HttpStatus.OK);
     }

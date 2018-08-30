@@ -3,7 +3,7 @@ package com.epam.exception;
 public class EmailNotificationException extends RuntimeException {
 
     public EmailNotificationException() {
-        super("Email notification exception");
+        this("Email notification exception");
     }
 
     public EmailNotificationException(String message) {
