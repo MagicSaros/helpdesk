@@ -12,12 +12,14 @@ import com.epam.exception.ImpermissibleActionException;
 import com.epam.exception.TicketNotFoundException;
 import com.epam.exception.UserNotFoundException;
 import java.util.Date;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
@@ -61,8 +63,10 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({MethodArgumentNotValidException.class})
-    public ResponseEntity<ApiError> handleValidationError(Exception e) {
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+        MethodArgumentNotValidException e, HttpHeaders headers, HttpStatus status,
+        WebRequest request) {
         ApiError apiError = new ApiError.Builder()
             .setTitle("Validation failed")
             .setStatus(HttpStatus.BAD_REQUEST.value())
@@ -70,7 +74,8 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
             .setTimestamp(new Date().getTime())
             .setDeveloperMessage(e.getClass().getName())
             .build();
-        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        return handleExceptionInternal(e,
+            apiError, headers, status, request);
     }
 
     @ExceptionHandler({FileLoadingException.class})
