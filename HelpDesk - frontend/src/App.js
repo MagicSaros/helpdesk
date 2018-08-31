@@ -7,6 +7,7 @@ import TicketCreation from './components/ticket/ticketCreation';
 import TicketOverview from './components/ticket/ticketOverview';
 import TicketEdition from './components/ticket/ticketEdition';
 import Feedback from './components/ticket/feedback';
+import PrivateRoute from './components/privateRoute';
 import './App.css';
 
 const baseUrl = 'http://localhost:8080/api';
@@ -21,11 +22,11 @@ class App extends Component {
 						<Route exact path="/" render={props => <Login baseUrl={baseUrl} {...props} />} />
 						<Route path="/login" render={props => <Login baseUrl={baseUrl} {...props} />} />
 						<Route path="/logout" render={props => <Logout baseUrl={baseUrl} {...props} />} />
-						<Route exact path="/tickets" render={props => <TicketList baseUrl={baseUrl} {...props} />} />
-						<Route exact path="/tickets/create" render={props => <TicketCreation baseUrl={baseUrl} {...props} />} />
-						<Route exact path="/tickets/:ticketId" render={props => <TicketOverview baseUrl={baseUrl} {...props} />} />
-						<Route exact path="/tickets/:ticketId/edit" render={props => <TicketEdition baseUrl={baseUrl} {...props} />} />
-						<Route exact path="/tickets/:ticketId/feedback" render={props => <Feedback baseUrl={baseUrl} {...props} />} />
+						<PrivateRoute exact path="/tickets" component={TicketList} baseUrl={baseUrl} />
+						<PrivateRoute exact path="/tickets/create" component={TicketCreation} baseUrl={baseUrl} />
+						<PrivateRoute exact path="/tickets/:ticketId" component={TicketOverview} baseUrl={baseUrl} />
+						<PrivateRoute exact path="/tickets/:ticketId/edit" component={TicketEdition} baseUrl={baseUrl} />
+						<PrivateRoute exact path="/tickets/:ticketId/feedback" component={Feedback} baseUrl={baseUrl} />
 					</Switch>
 				</div>
 			</Router>
