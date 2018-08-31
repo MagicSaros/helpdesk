@@ -1,7 +1,7 @@
 package com.epam.configuration;
 
-import com.epam.component.StateTransitionManager;
-import com.epam.component.implementation.StateTransitionManagerImpl;
+import com.epam.component.TicketStateTransitionManager;
+import com.epam.component.implementation.TicketStateTransitionManagerImpl;
 import com.epam.enums.State;
 import com.epam.enums.TicketAction;
 import com.epam.enums.UserRole;
@@ -112,8 +112,8 @@ public class BeanConfig {
     }
 
     @Bean
-    public StateTransitionManager stateTransitionManager() {
-        return new StateTransitionManagerImpl.Builder()
+    public TicketStateTransitionManager stateTransitionManager() {
+        return new TicketStateTransitionManagerImpl.Builder()
             .addStateTransition(State.DRAFT, TicketAction.CREATE, State.DRAFT)
             .addPermission(UserRole.EMPLOYEE, UserRole.MANAGER)
             .addStateTransition(State.DRAFT, TicketAction.SUBMIT, State.NEW)

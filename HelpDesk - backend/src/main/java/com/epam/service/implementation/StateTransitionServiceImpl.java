@@ -1,6 +1,6 @@
 package com.epam.service.implementation;
 
-import com.epam.component.StateTransitionManager;
+import com.epam.component.TicketStateTransitionManager;
 import com.epam.entity.History;
 import com.epam.entity.Ticket;
 import com.epam.entity.User;
@@ -24,7 +24,7 @@ public class StateTransitionServiceImpl implements StateTransitionService {
     private HistoryService historyService;
 
     @Autowired
-    private StateTransitionManager transitionManager;
+    private TicketStateTransitionManager transitionManager;
 
     @Autowired
     private EmailNotificationService emailNotificationService;

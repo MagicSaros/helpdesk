@@ -5,7 +5,7 @@ import com.epam.enums.TicketAction;
 import com.epam.enums.UserRole;
 import java.util.Collection;
 
-public interface StateTransitionManager {
+public interface TicketStateTransitionManager {
 
     Collection<TicketAction> getAllowedActions(State currentState, UserRole role);
 

@@ -73,10 +73,8 @@ public class CommentController {
 
         User user = userService.getUserById(userId);
         Ticket ticket = ticketService.getTicketById(ticketId);
-        comment.setUser(user);
-        comment.setTicket(ticket);
 
-        comment = commentService.addComment(comment);
+        comment = commentService.addComment(ticket, user, comment);
         commentDto = commentDtoConverter.fromEntityToDto(comment);
 
         return new ResponseEntity<>(commentDto, HttpStatus.CREATED);

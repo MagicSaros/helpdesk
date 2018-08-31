@@ -1,6 +1,8 @@
 package com.epam.service.implementation;
 
 import com.epam.entity.Comment;
+import com.epam.entity.Ticket;
+import com.epam.entity.User;
 import com.epam.exception.CommentNotFoundException;
 import com.epam.repository.CommentRepository;
 import com.epam.service.CommentService;
@@ -35,8 +37,10 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Comment addComment(Comment comment) {
+    public Comment addComment(Ticket ticket, User user, Comment comment) {
         long time = new Date().getTime();
+        comment.setUser(user);
+        comment.setTicket(ticket);
         comment.setDate(new Timestamp(time));
         return commentRepository.addComment(comment);
     }

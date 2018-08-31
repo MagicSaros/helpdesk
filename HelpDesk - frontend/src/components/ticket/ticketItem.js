@@ -13,6 +13,11 @@ const newStateByAction = {
     "Done": "DONE"
 }
 
+const displayClass = {
+    active: '',
+    inactive: 'd-none'
+};
+
 class TicketItem extends Component {
     constructor(props) {
         super(props);
@@ -20,7 +25,8 @@ class TicketItem extends Component {
         this.state = {
             ticket: this.props.ticket,
             actions: [],
-            currentAction: ''
+            currentAction: '',
+
         }
     }
 
@@ -47,7 +53,7 @@ class TicketItem extends Component {
                     {Util.capitalize(this.state.ticket.state)}
                 </td>
                 <td className="p-2 col-3">
-                    <div className="btn-group">
+                    <div className={`btn-group ${this.toggleDisplay()}`}>
                         <button type="button" className="btn btn-success" onClick={event => this.doAction(event)}>
                             {this.state.currentAction}
                         </button>
@@ -159,6 +165,10 @@ class TicketItem extends Component {
 
     showTicketsList() {
         this.props.history.push('/tickets');
+    }
+
+    toggleDisplay() {
+        return this.state.actions.length !== 0 ? displayClass.active : displayClass.inactive;
     }
 
     getCurrentUser() {

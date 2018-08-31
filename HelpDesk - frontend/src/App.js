@@ -8,7 +8,7 @@ import TicketOverview from './components/ticket/ticketOverview';
 import TicketEdition from './components/ticket/ticketEdition';
 import Feedback from './components/ticket/feedback';
 import PrivateRoute from './components/privateRoute';
-import './App.css';
+import './app.css';
 
 const baseUrl = 'http://localhost:8080/api';
 

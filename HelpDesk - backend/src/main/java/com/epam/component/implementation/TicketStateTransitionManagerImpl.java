@@ -1,6 +1,6 @@
 package com.epam.component.implementation;
 
-import com.epam.component.StateTransitionManager;
+import com.epam.component.TicketStateTransitionManager;
 import com.epam.enums.State;
 import com.epam.enums.TicketAction;
 import com.epam.enums.UserRole;
@@ -11,16 +11,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class StateTransitionManagerImpl implements StateTransitionManager {
+public class TicketStateTransitionManagerImpl implements TicketStateTransitionManager {
 
     private Map<State, Map<TicketAction, State>> transitions = new EnumMap<>(State.class);
 
     private Map<State, Map<TicketAction, UserRole[]>> permissions = new EnumMap<>(State.class);
 
-    public StateTransitionManagerImpl() {
+    public TicketStateTransitionManagerImpl() {
     }
 
-    private StateTransitionManagerImpl(Builder builder) {
+    private TicketStateTransitionManagerImpl(Builder builder) {
         this.transitions = builder.transitions;
         this.permissions = builder.permissions;
     }
@@ -90,13 +90,13 @@ public class StateTransitionManagerImpl implements StateTransitionManager {
 
         private Map<State, Map<TicketAction, UserRole[]>> permissions = new EnumMap<>(State.class);
 
-        public StateTransition addStateTransition(State currentState,
+        public TicketStateTransition addStateTransition(State currentState,
             TicketAction action, State newState) {
             if (!transitions.containsKey(currentState)) {
                 transitions.put(currentState, new EnumMap<>(TicketAction.class));
             }
             transitions.get(currentState).put(action, newState);
-            return new StateTransition(this, currentState, action);
+            return new TicketStateTransition(this, currentState, action);
         }
 
         public Builder removeStateTransition(State currentState,
@@ -105,11 +105,11 @@ public class StateTransitionManagerImpl implements StateTransitionManager {
             return this;
         }
 
-        public StateTransitionManagerImpl build() {
-            return new StateTransitionManagerImpl(this);
+        public TicketStateTransitionManagerImpl build() {
+            return new TicketStateTransitionManagerImpl(this);
         }
 
-        public class StateTransition {
+        public class TicketStateTransition {
 
             private Builder builder;
 
@@ -117,7 +117,7 @@ public class StateTransitionManagerImpl implements StateTransitionManager {
 
             private TicketAction action;
 
-            StateTransition(Builder builder, State currentState, TicketAction action) {
+            TicketStateTransition(Builder builder, State currentState, TicketAction action) {
                 this.builder = builder;
                 this.currentState = currentState;
                 this.action = action;
